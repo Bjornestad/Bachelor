@@ -15,7 +15,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_address = ("127.0.0.1", 5005)  # Localhost, Port 5005
 
 # Capture video
-# FOR MAC: delete , cv2.CAP_DSHOW
+# FOR MAC: delete , cv2.CAP_DSHOW 
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 # Store the last detected head state
