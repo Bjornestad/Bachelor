@@ -1,10 +1,8 @@
 import cv2
+import mediapipe as mp
 import socket
 import json
 import time
-import keyboard
-import mediapipe as mp
-
 
 # Initialize MediaPipe FaceMesh
 mp_face_mesh = mp.solutions.face_mesh
@@ -17,11 +15,15 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_address = ("127.0.0.1", 5005)  # Localhost, Port 5005
 
 # Capture video
+# FOR MAC: delete , cv2.CAP_DSHOW
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 # Store the last detected head state
 last_state = "NONE"
-tilt_threshold = 0.11  # Adjust sensitivity
+tilt_threshold = 0.15  # Adjust sensitivity
+
+# Flag to stop the loop
+running = True
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -34,6 +36,8 @@ while cap.isOpened():
 
     if results.multi_face_landmarks:
         for landmarks in results.multi_face_landmarks:
+            for idx, landmark in enumerate(landmarks.landmark):
+                print(f"Landmark {idx}: x={landmark.x}, y={landmark.y}, z={landmark.z}")
             left_ear = landmarks.landmark[234]
             right_ear = landmarks.landmark[454]
 
@@ -41,9 +45,9 @@ while cap.isOpened():
 
             # Determine head position
             if left_ear.y > right_ear.y + tilt_threshold:
-                current_state = "RIGHT"
-            elif right_ear.y > left_ear.y + tilt_threshold:
                 current_state = "LEFT"
+            elif right_ear.y > left_ear.y + tilt_threshold:
+                current_state = "RIGHT"
             else:
                 current_state = "NONE"
 
@@ -51,30 +55,15 @@ while cap.isOpened():
             if current_state != last_state:
                 print(f"Head position changed: {current_state}")
                 last_state = current_state  # Update last state
-                if current_state == "RIGHT":
-                    keyboard.press('q')
-                    time.sleep(0.2) # these can be adjusted for the needed timing
-                    keyboard.release('q')
-                elif current_state == "LEFT":
-                    keyboard.press('e')
-                    time.sleep(0.2) # these can be adjusted for the needed timing
-                    keyboard.release('e')
-                elif current_state == "NONE" and last_state == "RIGHT":
-                    keyboard.press('q')
-                    time.sleep(0.2) # these can be adjusted for the needed timing
-                    keyboard.release('q')
-                elif current_state == "NONE" and last_state == "LEFT":
-                    keyboard.press('e')
-                    time.sleep(0.2) # these can be adjusted for the needed timing
-                    keyboard.release('e')
-    time.sleep(0.05) # Reduce polling frequency (adjust as needed)
 
-
-            # Send command to C#
-            # sock.sendto(json.dumps(command).encode(), server_address)
-
+    # Show the frame with landmarks
     cv2.imshow("Face Tracker", frame)
-    if cv2.waitKey(1) & 0xFF == ord("å"):
+
+    # Check if 'q' is pressed to exit
+    if cv2.waitKey(1) & 0xFF == ord("q"):
+        running = False  # Stop the loop when 'q' is pressed
+
+    if not running:
         break
 
 cap.release()
