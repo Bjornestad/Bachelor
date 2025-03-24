@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -37,15 +38,25 @@ public class OpenFaceListener
                 TcpClient client = await _server.AcceptTcpClientAsync();
                 NetworkStream stream = client.GetStream();
 
-                byte[] buffer = new byte[1024];
-                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-
-                if (bytesRead > 0)
+                // Create a memory stream to collect all data
+                using MemoryStream memoryStream = new MemoryStream();
+                byte[] buffer = new byte[4096]; // Larger buffer
+                int bytesRead;
+            
+                // Read until there's no more data
+                do
                 {
-                    string json = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    var data = JsonSerializer.Deserialize<FacialTrackingData>(json);
-                    _movementManager.ProcessFacialData(data);
-                }
+                    bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                    if (bytesRead > 0)
+                    {
+                        memoryStream.Write(buffer, 0, bytesRead);
+                    }
+                } while (stream.DataAvailable);
+
+                // Process the complete data
+                string json = Encoding.UTF8.GetString(memoryStream.ToArray());
+                var data = JsonSerializer.Deserialize<FacialTrackingData>(json);
+                _movementManager.ProcessFacialData(data);
 
                 client.Close();
             }
