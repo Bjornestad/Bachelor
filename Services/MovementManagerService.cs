@@ -23,12 +23,46 @@ public class MovementManagerService
     }
     public MovementManagerService()
     {
-        // Load settings from JSON
-        string json = File.ReadAllText("Assets/DefaultSettings/DefaultSetting.json");
-        _settings = JsonSerializer.Deserialize<Dictionary<string, MovementSetting>>(json);
+        // Set up paths
+        string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        string settingsDirectory = Path.Combine(baseDirectory, "Assets", "DefaultSettings");
+        string settingsPath = Path.Combine(settingsDirectory, "DefaultSetting.json");
 
-        // Add coordinate and direction information 
+        // Create directory if it doesn't exist
+        if (!Directory.Exists(settingsDirectory))
+        {
+            Directory.CreateDirectory(settingsDirectory);
+        }
+
+        // Create default settings file if it doesn't exist
+        if (!File.Exists(settingsPath))
+        {
+            _settings = CreateDefaultSettings();
+            string defaultJson = JsonSerializer.Serialize(_settings, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(settingsPath, defaultJson);
+        }
+        else
+        {
+            // Load settings from JSON
+            string json = File.ReadAllText(settingsPath);
+            _settings = JsonSerializer.Deserialize<Dictionary<string, MovementSetting>>(json);
+        }
+
+        // Add coordinate and direction information
         SetDefaultDirectionsAndCoordinates();
+    }
+
+    private Dictionary<string, MovementSetting> CreateDefaultSettings()
+    {
+        return new Dictionary<string, MovementSetting>
+        {
+            ["HeadLeft"] = new MovementSetting { Id = 1, Key = "Left", Threshold = 0.15, Sensitivity = 1.0 },
+            ["HeadRight"] = new MovementSetting { Id = 2, Key = "Right", Threshold = 0.15, Sensitivity = 1.0 },
+            ["LeftEyebrowRaise"] = new MovementSetting { Id = 3, Key = "Up", Threshold = 0.1, Sensitivity = 1.0 },
+            ["RightEyebrowRaise"] = new MovementSetting { Id = 4, Key = "Down", Threshold = 0.1, Sensitivity = 1.0 },
+            ["MouthOpen"] = new MovementSetting { Id = 5, Key = "Space", Threshold = 0.2, Sensitivity = 1.0 },
+            ["MouthWide"] = new MovementSetting { Id = 6, Key = "Enter", Threshold = 0.2, Sensitivity = 1.0 }
+        };
     }
     private void SetDefaultDirectionsAndCoordinates()
     {

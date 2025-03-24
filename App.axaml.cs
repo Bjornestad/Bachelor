@@ -35,6 +35,8 @@ public partial class App : Application
         services.AddSingleton<MovementManagerService>();
         services.AddSingleton<OpenFaceListener>();
         services.AddSingleton<MainWindowViewModel>();
+        services.AddSingleton<PythonLauncherService>();
+
         
         // Build service provider
         Services = services.BuildServiceProvider();
@@ -52,6 +54,9 @@ public partial class App : Application
             // Start the OpenFace listener
             var listener = Services.GetRequiredService<OpenFaceListener>();
             listener.Start();
+            
+            var pythonLauncher = Services.GetRequiredService<PythonLauncherService>();
+            pythonLauncher.StartPythonScript();
         }
 
         base.OnFrameworkInitializationCompleted();
