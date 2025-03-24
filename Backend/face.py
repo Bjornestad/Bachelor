@@ -16,7 +16,7 @@ server_address = ("127.0.0.1", 5005)  # Localhost, Port 5005
 
 # Capture video
 # FOR MAC: delete , cv2.CAP_DSHOW 
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(0)
 
 # Store the last detected head state
 last_state = "NONE"
@@ -37,26 +37,20 @@ while cap.isOpened():
     if results.multi_face_landmarks:
         for landmarks in results.multi_face_landmarks:
             for idx, landmark in enumerate(landmarks.landmark):
-                print(f"Landmark {idx}: x={landmark.x}, y={landmark.y}, z={landmark.z}")
-            left_ear = landmarks.landmark[234]
-            right_ear = landmarks.landmark[454]
+                jsonLandmark = {
+                    "id": idx,
+                    "x": round(landmark.x,6),
+                    "y": round(landmark.y,6),
+                    "z": round(landmark.z,6)
+                }
+                sentPackage = json.dumps(jsonLandmark)
+                try:
+                    sock.sendto(sentPackage.encode(), server_address)
+                except socket.error as e:
+                    print("Socket error: ",e)
+                print(sentPackage.encode())
 
-            ear_difference = abs(left_ear.y - right_ear.y)
-
-            # Determine head position
-            if left_ear.y > right_ear.y + tilt_threshold:
-                current_state = "LEFT"
-            elif right_ear.y > left_ear.y + tilt_threshold:
-                current_state = "RIGHT"
-            else:
-                current_state = "NONE"
-
-            # Only output if state has changed
-            if current_state != last_state:
-                print(f"Head position changed: {current_state}")
-                last_state = current_state  # Update last state
-
-    # Show the frame with landmarks
+    # Show the webcam feed
     cv2.imshow("Face Tracker", frame)
 
     # Check if 'q' is pressed to exit
