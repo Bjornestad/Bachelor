@@ -1,0 +1,38 @@
+﻿{
+  "HeadLeft": {
+    "id": 1,
+    "key": "A",
+    "threshold": 0.5,
+    "sensitivity": 1
+  },
+    "HeadRight": {
+        "id": 2,
+        "key": "D",
+        "threshold": 0.5,
+        "sensitivity": 1
+    },
+    "HeadUp": {
+        "id": 3,
+        "key": "W",
+        "threshold": 0.5,
+        "sensitivity": 1
+    },
+    "HeadDown": {
+        "id": 4,
+        "key": "S",
+        "threshold": 0.5,
+        "sensitivity": 1
+    },
+    "Blink": {
+        "id": 5,
+        "key": "Space",
+        "threshold": 0.5,
+        "sensitivity": 1
+    },
+    "RightEyebrowRaise": {
+        "id": 6,
+        "key": "E",
+        "threshold": 0.5,
+        "sensitivity": 1
+    },
+}

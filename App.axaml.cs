@@ -8,11 +8,16 @@ using Bachelor.ViewModels;
 using Bachelor.Views;
 using ReactiveUI;
 using Avalonia.ReactiveUI;
+using Microsoft.Extensions.DependencyInjection;
+using Bachelor.Services;
+using System;
 
 namespace Bachelor;
 
 public partial class App : Application
 {
+    public IServiceProvider? Services { get; private set; }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -22,13 +27,31 @@ public partial class App : Application
     {
         // Configure ReactiveUI
         RxApp.MainThreadScheduler = AvaloniaScheduler.Instance;
-    
+
+        // Set up dependency injection
+        var services = new ServiceCollection();
+        
+        // Register services
+        services.AddSingleton<MovementManagerService>();
+        services.AddSingleton<OpenFaceListener>();
+        services.AddSingleton<MainWindowViewModel>();
+        
+        // Build service provider
+        Services = services.BuildServiceProvider();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            // Get MainWindowViewModel from DI container
+            var viewModel = Services.GetRequiredService<MainWindowViewModel>();
+            
             desktop.MainWindow = new MainWindowView
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = viewModel,
             };
+            
+            // Start the OpenFace listener
+            var listener = Services.GetRequiredService<OpenFaceListener>();
+            listener.Start();
         }
 
         base.OnFrameworkInitializationCompleted();
