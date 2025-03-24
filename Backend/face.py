@@ -11,8 +11,9 @@ mp_drawing_styles = mp.solutions.drawing_styles  # Optional styling
 face_mesh = mp_face_mesh.FaceMesh(min_detection_confidence=0.5, min_tracking_confidence=0.5)
 
 # Create a socket to send data to C#
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ("127.0.0.1", 5005)  # Localhost, Port 5005
+sock.connect(server_address) # Connect to the server
 
 # Capture video
 # FOR MAC: delete , cv2.CAP_DSHOW 
@@ -35,20 +36,24 @@ while cap.isOpened():
     results = face_mesh.process(rgb_frame)
 
     if results.multi_face_landmarks:
+        all_landmarks = []  # List to store all landmarks in one package
+
         for landmarks in results.multi_face_landmarks:
             for idx, landmark in enumerate(landmarks.landmark):
-                jsonLandmark = {
+                all_landmarks.append({
                     "id": idx,
-                    "x": round(landmark.x,6),
-                    "y": round(landmark.y,6),
-                    "z": round(landmark.z,6)
-                }
-                sentPackage = json.dumps(jsonLandmark)
-                try:
-                    sock.sendto(sentPackage.encode(), server_address)
-                except socket.error as e:
-                    print("Socket error: ",e)
-                print(sentPackage.encode())
+                    "x": round(landmark.x, 6),
+                    "y": round(landmark.y, 6),
+                    "z": round(landmark.z, 6)
+                })
+
+        # Create a single JSON package with all landmarks
+        sentPackage = json.dumps({"landmarks": all_landmarks})
+
+        try:
+            sock.sendall(sentPackage.encode())  # Send once per frame
+        except socket.error as e:
+            print("Socket error: ", e)
 
     # Show the webcam feed
     cv2.imshow("Face Tracker", frame)
