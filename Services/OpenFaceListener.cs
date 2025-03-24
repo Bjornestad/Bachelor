@@ -57,6 +57,7 @@ public class OpenFaceListener
                 string json = Encoding.UTF8.GetString(memoryStream.ToArray());
                 var data = JsonSerializer.Deserialize<FacialTrackingData>(json);
                 _movementManager.ProcessFacialData(data);
+                
 
                 client.Close();
             }

@@ -11,7 +11,11 @@ public class PythonLauncherService
     
     public void StartPythonScript()
     {
-        string pythonPath = "python"; 
+        string pythonPath = "python";
+        if (OperatingSystem.IsMacOS())
+        {
+            pythonPath = "python3";
+        }
         string scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backend", "face.py");
         
         _pythonProcess = new Process
