@@ -11,6 +11,7 @@ namespace Bachelor.Services;
 
 public class OpenFaceListener
 {
+    private bool debug = true;
     private readonly MovementManagerService _movementManager;
     private TcpListener _server;
     private bool _isRunning;
@@ -31,39 +32,53 @@ public class OpenFaceListener
 
     private async Task ListenForData()
     {
+        DateTime lastPrintTime = DateTime.MinValue;
+        TimeSpan printInterval = TimeSpan.FromMilliseconds(500); // Print every 500ms
+    
         while (_isRunning)
         {
             try
             {
                 TcpClient client = await _server.AcceptTcpClientAsync();
+                Console.WriteLine("Client connected!");
                 NetworkStream stream = client.GetStream();
 
-                // Create a memory stream to collect all data
-                using MemoryStream memoryStream = new MemoryStream();
-                byte[] buffer = new byte[4096]; // Larger buffer
-                int bytesRead;
-            
-                // Read until there's no more data
-                do
-                {
-                    bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                    if (bytesRead > 0)
-                    {
-                        memoryStream.Write(buffer, 0, bytesRead);
-                    }
-                } while (stream.DataAvailable);
+                using StreamReader reader = new StreamReader(stream);
 
-                // Process the complete data
-                string json = Encoding.UTF8.GetString(memoryStream.ToArray());
-                var data = JsonSerializer.Deserialize<FacialTrackingData>(json);
-                _movementManager.ProcessFacialData(data);
+                while (client.Connected && _isRunning)
+                {
+                    string jsonLine = await reader.ReadLineAsync();
+                    if (string.IsNullOrEmpty(jsonLine))
+                        continue;
                 
+                    try
+                    {
+                        var data = JsonSerializer.Deserialize<FacialTrackingData>(jsonLine);
+                    
+                        // Only print once every 500ms
+                        if(debug){
+                            if (DateTime.Now - lastPrintTime > printInterval)
+                            {
+                                Console.WriteLine($"Received data: {jsonLine}");
+                                Console.WriteLine($"Parsed data: X={data.X:F3}, Y={data.Y:F3}, Z={data.Z:F3}, Roll={data.Roll:F3}, " +
+                                                  $"LeftEyebrow={data.LeftEyebrowHeight:F3}, RightEyebrow={data.RightEyebrowHeight:F3}, " +
+                                                  $"MouthWidth={data.MouthWidth:F3}, MouthHeight={data.MouthHeight:F3}");
+                                lastPrintTime = DateTime.Now;
+                            }}
+                    
+                        _movementManager.ProcessFacialData(data);
+                    }
+                    catch (JsonException ex)
+                    {
+                        Console.WriteLine($"JSON parsing error: {ex.Message}");
+                    }
+                }
 
                 client.Close();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error processing data: {ex.Message}");
+                Console.WriteLine($"Connection error: {ex.Message}");
             }
         }
     }

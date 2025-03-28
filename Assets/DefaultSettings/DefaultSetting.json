@@ -1,38 +1,79 @@
 ﻿{
   "HeadLeft": {
-    "id": 1,
     "key": "A",
     "threshold": 0.5,
-    "sensitivity": 1
+    "sensitivity": 5,
+    "coordinate": "X",
+    "direction": "Negative"
   },
-    "HeadRight": {
-        "id": 2,
-        "key": "D",
-        "threshold": 0.5,
-        "sensitivity": 1
-    },
-    "HeadUp": {
-        "id": 3,
-        "key": "W",
-        "threshold": 0.5,
-        "sensitivity": 1
-    },
-    "HeadDown": {
-        "id": 4,
-        "key": "S",
-        "threshold": 0.5,
-        "sensitivity": 1
-    },
-    "Blink": {
-        "id": 5,
-        "key": "Space",
-        "threshold": 0.5,
-        "sensitivity": 1
-    },
-    "RightEyebrowRaise": {
-        "id": 6,
-        "key": "E",
-        "threshold": 0.5,
-        "sensitivity": 1
-    },
+  "HeadRight": {
+    "key": "D",
+    "threshold": 0.5,
+    "sensitivity": 5,
+    "coordinate": "X",
+    "direction": "Negative"
+  },
+  "HeadUp": {
+    "key": "W",
+    "threshold": 0.5,
+    "sensitivity": 5,
+    "coordinate": "Y",
+    "direction": "Negative"
+  },
+  "HeadDown": {
+    "key": "S",
+    "threshold": 0.5,
+    "sensitivity": 5,
+    "coordinate": "Y",
+    "direction": "Positive"
+  },
+  "HeadTiltLeft": {
+    "key": "Q",
+    "threshold": 0.5,
+    "sensitivity": 5,
+    "coordinate": "Roll",
+    "direction": "Negative"
+  },
+  "HeadTiltRight": {
+    "key": "E",
+    "threshold": 0.5,
+    "sensitivity": 5,
+    "coordinate": "Roll",
+    "direction": "Positive"
+  },
+  "LeftEyebrowRaise": {
+    "key": "Up",
+    "threshold": 1,
+    "sensitivity": 5,
+    "coordinate": "LeftEyebrow",
+    "direction": "Positive"
+  },
+  "RightEyebrowRaise": {
+    "key": "E",
+    "threshold": 0.5,
+    "sensitivity": 5,
+    "coordinate": "RightEyebrow",
+    "direction": "Positive"
+  },
+  "Blink": {
+    "key": "Space",
+    "threshold": 0.5,
+    "sensitivity": 5,
+    "coordinate": "EyesClosed",
+    "direction": "Positive"
+  },
+  "MouthOpen": {
+    "key": "Space",
+    "threshold": 0.5,
+    "sensitivity": 5,
+    "coordinate": "MouthHeight",
+    "direction": "Positive"
+  },
+  "MouthWide": {
+    "key": "Enter",
+    "threshold": 0.5,
+    "sensitivity": 5,
+    "coordinate": "MouthWidth",
+    "direction": "Positive"
+  }
 }

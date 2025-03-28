@@ -15,17 +15,25 @@ face_mesh = mp_face_mesh.FaceMesh(
     min_tracking_confidence=0.5
 )
 
+debug = False
+
 # Socket configuration
 server_address = ("127.0.0.1", 5005)
 data_queue = Queue(maxsize=2)  # Queue to pass data to network thread
 
 # Reduce camera resolution for faster processing
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+#cap = cv2.VideoCapture(0) my webcam needs DSHOW for some reason, todo figure out why
+#will need to setup a detection for this
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
-# Key landmarks - using only essential points
-key_landmarks = [0, 4, 33, 263, 61, 291]  # Minimal set for head pose
+key_landmarks = [0,17,159,145,386,374,4,2,5,6,152,10]  
+#0 top lip, 17 bottom lip, 
+#159 top left eye, 145 top right eye, 386 bottom left eye, 374 bottom right eye
+#4 nose tip, 2 nose bottom, 5 nose left, 6 nose right
+#152 bottom chin, 10 top head
+
 
 # Network thread function
 def network_thread():
@@ -41,7 +49,7 @@ def network_thread():
             # Get data from queue (non-blocking)
             try:
                 data = data_queue.get(block=True, timeout=0.1)
-                sock.sendall(data.encode())
+                sock.sendall((data + "\n").encode())
                 data_queue.task_done()
             except Empty:
                 pass
@@ -69,8 +77,7 @@ while cap.isOpened() and running:
     curr_frame_time = time.time()
     elapsed = curr_frame_time - prev_frame_time
 
-    # Process at ~30 FPS
-    if elapsed > 0.033:
+    if elapsed > 0.001:
         ret, frame = cap.read()
         if not ret:
             break
@@ -85,21 +92,30 @@ while cap.isOpened() and running:
             landmarks = results.multi_face_landmarks[0]
             all_landmarks = []
 
-            for idx in key_landmarks:
-                landmark = landmarks.landmark[idx]
-                all_landmarks.append({
-                    "id": idx,
-                    "x": round(landmark.x, 3),  # Reduce precision
-                    "y": round(landmark.y, 3),
-                    "z": round(landmark.z, 3)
-                })
+            # In face.py, modify the processed_data creation:
+            processed_data = {
+                "X": round(landmarks.landmark[4].x, 3),  # Nose tip X 
+                "Y": round(landmarks.landmark[4].y, 3),  # Nose tip Y
+                "Z": round(landmarks.landmark[4].z, 3),
+                "Roll": round(landmarks.landmark[33].y - landmarks.landmark[263].y, 3),
+                "LeftEyebrowHeight": round(landmarks.landmark[296].y, 3),
+                "RightEyebrowHeight": round(landmarks.landmark[105].y, 3),
+                "MouthHeight": round(landmarks.landmark[17].y - landmarks.landmark[0].y, 3),
+                "MouthWidth": round(abs(landmarks.landmark[61].x - landmarks.landmark[291].x), 3)
+            }
+            
+            # Print landmark data if debug mode
+            if debug:
+                print("\n--- Key Landmark Data ---")
+                for landmark in all_landmarks:
+                    print(f"ID: {landmark['id']}, X: {landmark['x']}, Y: {landmark['y']}, Z: {landmark['z']}")
 
             # Put data in queue for network thread (non-blocking)
-            package = json.dumps({"landmarks": all_landmarks})
             try:
-                data_queue.put_nowait(package)  # Don't block if queue full
+                package = json.dumps(processed_data)
+                data_queue.put_nowait(package)
             except:
-                pass  # Skip this frame if queue full
+                pass
 
         # Calculate and display FPS
         if show_fps:
