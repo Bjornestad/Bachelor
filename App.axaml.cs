@@ -55,6 +55,8 @@ public partial class App : Application
             var listener = Services.GetRequiredService<OpenFaceListener>();
             listener.Start();
             
+            // Check that this initialization is happening
+            
             var pythonLauncher = Services.GetRequiredService<PythonLauncherService>();
             pythonLauncher.StartPythonScript();
         }

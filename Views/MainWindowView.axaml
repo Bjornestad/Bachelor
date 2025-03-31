@@ -2,14 +2,30 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:Bachelor.ViewModels"
+        xmlns:vm="using:Bachelor.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Bachelor.Views.MainWindowView"
         x:DataType="vm:MainWindowViewModel"
-        d:DataContext="{x:Static vm:Design.MainWindowViewModel}"
-        Title="MainWindowView">
-    <StackPanel>
-        <TextBlock Text="{Binding Greeting}" />
-        <Button Content="Go to Camera View" Command="{Binding NavigateToBasicCameraCommand}" />
-    </StackPanel>
+        x:CompileBindings="True"
+        Title="Bachelor">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+            <Button Content="Home" Command="{Binding NavigateToHomeCommand}" Margin="0,0,10,0"/>
+            <Button Content="Camera" Command="{Binding NavigateToBasicCameraCommand}" Margin="0,0,10,0"/>
+            <Button x:Name="PopOutButton" Content="Pop Out"
+                    HorizontalAlignment="Right" IsVisible="False" Margin="10,0,0,0"/>
+        </StackPanel>
+
+        <ContentControl x:Name="MainContent" Grid.Row="1" />
+    </Grid>
 </Window>

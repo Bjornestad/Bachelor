@@ -49,7 +49,12 @@ def network_thread():
             # Get data from queue (non-blocking)
             try:
                 data = data_queue.get(block=True, timeout=0.1)
-                sock.sendall((data + "\n").encode())
+                if isinstance(data, str):  # Text data (facial tracking)
+                    sock.sendall(f"DATA:{data}\n".encode())
+                elif isinstance(data, bytes):  # Image data
+                    # Send image size first, then the bytes
+                    sock.sendall(f"IMAGE:{len(data)}\n".encode())
+                    sock.sendall(data)
                 data_queue.task_done()
             except Empty:
                 pass
@@ -82,20 +87,18 @@ while cap.isOpened() and running:
         if not ret:
             break
 
-        # Process with MediaPipe (don't convert color space if not needed)
-        frame.flags.writeable = False  # Pass by reference for performance
+        # Process with MediaPipe
+        frame.flags.writeable = False
         results = face_mesh.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         frame.flags.writeable = True
 
-        # Only extract and send data if landmarks detected
+        # Send facial landmark data only when detected
         if results.multi_face_landmarks:
             landmarks = results.multi_face_landmarks[0]
-            all_landmarks = []
 
-            # In face.py, modify the processed_data creation:
             processed_data = {
-                "X": round(landmarks.landmark[4].x, 3),  # Nose tip X 
-                "Y": round(landmarks.landmark[4].y, 3),  # Nose tip Y
+                "X": round(landmarks.landmark[4].x, 3),
+                "Y": round(landmarks.landmark[4].y, 3),
                 "Z": round(landmarks.landmark[4].z, 3),
                 "Roll": round(landmarks.landmark[33].y - landmarks.landmark[263].y, 3),
                 "LeftEyebrowHeight": round(landmarks.landmark[296].y, 3),
@@ -103,12 +106,6 @@ while cap.isOpened() and running:
                 "MouthHeight": round(landmarks.landmark[17].y - landmarks.landmark[0].y, 3),
                 "MouthWidth": round(abs(landmarks.landmark[61].x - landmarks.landmark[291].x), 3)
             }
-            
-            # Print landmark data if debug mode
-            if debug:
-                print("\n--- Key Landmark Data ---")
-                for landmark in all_landmarks:
-                    print(f"ID: {landmark['id']}, X: {landmark['x']}, Y: {landmark['y']}, Z: {landmark['z']}")
 
             # Put data in queue for network thread (non-blocking)
             try:
@@ -116,6 +113,16 @@ while cap.isOpened() and running:
                 data_queue.put_nowait(package)
             except:
                 pass
+
+        # Always send frames regardless of face detection
+        if frame is not None:
+            _, img_encoded = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
+            if _:
+                try:
+                    data_queue.put_nowait(img_encoded.tobytes())
+                    print(f"Queued image: {len(img_encoded.tobytes())} bytes")
+                except Exception as e:
+                    print(f"Failed to queue image: {e}")
 
         # Calculate and display FPS
         if show_fps:
@@ -125,8 +132,8 @@ while cap.isOpened() and running:
 
         prev_frame_time = curr_frame_time
 
-        # Show frame
-        cv2.imshow("Face Tracker", frame)
+        #Show frame
+        #cv2.imshow("Face Tracker", frame)
 
     # Check for quit
     if cv2.waitKey(1) & 0xFF == ord("q"):

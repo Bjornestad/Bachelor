@@ -5,6 +5,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using Bachelor.Models;
 
 namespace Bachelor.Services;
@@ -15,6 +17,9 @@ public class OpenFaceListener
     private readonly MovementManagerService _movementManager;
     private TcpListener _server;
     private bool _isRunning;
+
+    // Event for video frame updates
+    public event EventHandler<Bitmap> VideoFrameReceived;
 
     public OpenFaceListener(MovementManagerService movementManager)
     {
@@ -28,58 +33,162 @@ public class OpenFaceListener
         _isRunning = true;
 
         Task.Run(() => ListenForData());
+        Console.WriteLine("OpenFaceListener started and listening on 127.0.0.1:5005");
     }
 
     private async Task ListenForData()
     {
         DateTime lastPrintTime = DateTime.MinValue;
-        TimeSpan printInterval = TimeSpan.FromMilliseconds(500); // Print every 500ms
-    
+        TimeSpan printInterval = TimeSpan.FromMilliseconds(500);
+
         while (_isRunning)
         {
+            TcpClient client = null;
             try
             {
-                TcpClient client = await _server.AcceptTcpClientAsync();
+                client = await _server.AcceptTcpClientAsync();
                 Console.WriteLine("Client connected!");
                 NetworkStream stream = client.GetStream();
 
-                using StreamReader reader = new StreamReader(stream);
+                byte[] headerBuffer = new byte[1024]; // Buffer for reading headers
+                int headerLength;
 
                 while (client.Connected && _isRunning)
                 {
-                    string jsonLine = await reader.ReadLineAsync();
-                    if (string.IsNullOrEmpty(jsonLine))
-                        continue;
-                
                     try
                     {
-                        var data = JsonSerializer.Deserialize<FacialTrackingData>(jsonLine);
-                    
-                        // Only print once every 500ms
-                        if(debug){
-                            if (DateTime.Now - lastPrintTime > printInterval)
+                        // Read headers until we get a newline
+                        headerLength = 0;
+                        bool foundNewline = false;
+
+                        while (!foundNewline && headerLength < headerBuffer.Length)
+                        {
+                            int b = stream.ReadByte();
+                            if (b == -1) // Connection closed
                             {
-                                Console.WriteLine($"Received data: {jsonLine}");
+                                break;
+                            }
+
+                            headerBuffer[headerLength++] = (byte)b;
+
+                            // Check if we've found a newline
+                            if (b == '\n')
+                            {
+                                foundNewline = true;
+                                break;
+                            }
+                        }
+
+                        if (!foundNewline)
+                        {
+                            break;
+                        }
+
+                        // Convert header to string and remove newline
+                        string header = Encoding.UTF8.GetString(headerBuffer, 0, headerLength).TrimEnd();
+
+                        if (header.StartsWith("DATA:"))
+                        {
+                            // Process facial tracking data
+                            string jsonData = header.Substring(5);
+                            var data = JsonSerializer.Deserialize<FacialTrackingData>(jsonData);
+
+                            if (debug && DateTime.Now - lastPrintTime > printInterval)
+                            {
                                 Console.WriteLine($"Parsed data: X={data.X:F3}, Y={data.Y:F3}, Z={data.Z:F3}, Roll={data.Roll:F3}, " +
-                                                  $"LeftEyebrow={data.LeftEyebrowHeight:F3}, RightEyebrow={data.RightEyebrowHeight:F3}, " +
-                                                  $"MouthWidth={data.MouthWidth:F3}, MouthHeight={data.MouthHeight:F3}");
+                                                  $"LeftEyebrowHeight={data.LeftEyebrowHeight:F3}, RightEyebrowHeight={data.RightEyebrowHeight:F3}, " +
+                                                  $"MouthHeight={data.MouthHeight:F3}, MouthWidth={data.MouthWidth:F3}");
                                 lastPrintTime = DateTime.Now;
-                            }}
-                    
-                        _movementManager.ProcessFacialData(data);
+                            }
+
+                            _movementManager.ProcessFacialData(data);
+                        }
+                        else if (header.StartsWith("IMAGE:"))
+                        {
+                            // Process image frame
+                            if (int.TryParse(header.Substring(6), out int size))
+                            {
+                                byte[] imageBuffer = new byte[size];
+
+                                // Read entire image
+                                int bytesRead = 0;
+                                int totalBytesRead = 0;
+
+                                while (totalBytesRead < size)
+                                {
+                                    bytesRead = await stream.ReadAsync(imageBuffer, totalBytesRead, size - totalBytesRead);
+                                    if (bytesRead == 0)
+                                    {
+                                        break;
+                                    }
+                                    totalBytesRead += bytesRead;
+                                }
+
+                                if (totalBytesRead == size)
+                                {
+                                    await ProcessImageFrameAsync(imageBuffer);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Try legacy format - plain JSON
+                            try
+                            {
+                                var data = JsonSerializer.Deserialize<FacialTrackingData>(header);
+                                _movementManager.ProcessFacialData(data);
+                            }
+                            catch (JsonException)
+                            {
+                                // Not valid JSON, skipping
+                            }
+                        }
                     }
-                    catch (JsonException ex)
+                    catch (IOException ex)
                     {
-                        Console.WriteLine($"JSON parsing error: {ex.Message}");
+                        Console.WriteLine($"IO error: {ex.Message}");
+                        break; // Exit the inner loop on IO errors
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error processing data: {ex.Message}");
+                        // Continue to next message
                     }
                 }
-
-                client.Close();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Connection error: {ex.Message}");
             }
+            finally
+            {
+                client?.Close();
+                await Task.Delay(1000); // Wait before accepting new connections
+            }
+        }
+    }
+
+    private async Task ProcessImageFrameAsync(byte[] imageData)
+    {
+        try
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                try
+                {
+                    using var ms = new MemoryStream(imageData);
+                    var bitmap = new Bitmap(ms);
+                    VideoFrameReceived?.Invoke(this, bitmap);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error creating bitmap: {ex.Message}");
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error processing image: {ex.Message}");
         }
     }
 
@@ -87,5 +196,6 @@ public class OpenFaceListener
     {
         _isRunning = false;
         _server?.Stop();
+        Console.WriteLine("OpenFaceListener stopped");
     }
 }
