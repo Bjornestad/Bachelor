@@ -33,7 +33,7 @@ public partial class App : Application
         
         // Register services
         services.AddSingleton<MovementManagerService>();
-        services.AddSingleton<OpenFaceListener>();
+        services.AddSingleton<MediaPipeListener>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<PythonLauncherService>();
 
@@ -52,7 +52,7 @@ public partial class App : Application
             };
             
             // Start the OpenFace listener
-            var listener = Services.GetRequiredService<OpenFaceListener>();
+            var listener = Services.GetRequiredService<MediaPipeListener>();
             listener.Start();
             
             // Check that this initialization is happening

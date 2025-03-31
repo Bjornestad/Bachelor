@@ -7,13 +7,13 @@ namespace Bachelor.ViewModels
 {
     public class BasicCameraViewModel : ViewModelBase
     {
-        private readonly OpenFaceListener _openFaceListener;
+        private readonly MediaPipeListener _mediaPipeListener;
         private Bitmap _cameraFrame;
 
-        public BasicCameraViewModel(OpenFaceListener openFaceListener)
+        public BasicCameraViewModel(MediaPipeListener mediaPipeListener)
         {
-            _openFaceListener = openFaceListener;
-            // Constructor injection of OpenFaceListener service
+            _mediaPipeListener = mediaPipeListener;
+            // Constructor injection of MediaPipeListener service
         }
 
         public Bitmap CameraFrame
@@ -22,6 +22,6 @@ namespace Bachelor.ViewModels
             private set => this.RaiseAndSetIfChanged(ref _cameraFrame, value);
         }
 
-        public OpenFaceListener FaceListener => _openFaceListener;
+        public MediaPipeListener FaceListener => _mediaPipeListener;
     }
 }

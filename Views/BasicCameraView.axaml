@@ -4,11 +4,21 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Bachelor.Views.BasicCameraView">
-    <Grid>
-        <Image Name="CameraImage" Stretch="Uniform" Width="640" Height="480" />
-        <TextBlock Text="No camera feed available" 
-                   IsVisible="{Binding #CameraImage.Source, Converter={x:Static ObjectConverters.IsNull}}"
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Center" />
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+        <!-- Fixed size container that keeps button position consistent -->
+        <Border Width="640" Height="480">
+            <Grid>
+                <Image Name="CameraImage" Stretch="Uniform" />
+                <TextBlock Text="No camera feed available" 
+                           IsVisible="{Binding #CameraImage.Source, Converter={x:Static ObjectConverters.IsNull}}"
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center" />
+                <Button x:Name="PopButton" 
+                        Content="Pop Out"
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Top" 
+                        Margin="10"/>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

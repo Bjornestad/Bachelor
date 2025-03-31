@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Bachelor.Services;
@@ -8,21 +9,45 @@ namespace Bachelor.Views
 {
     public partial class MainWindowView : Window
     {
-        private Button _popOutButton;
-        private ContentControl _mainContent;
-        private BasicCameraViewModel _cameraViewModel; // Store the view model instead
+        private ContentControl _cameraContainer;
+        private BasicCameraViewModel _cameraViewModel;
         private PopoutWindow _popoutWindow;
-        private OpenFaceListener _openFaceListener; // Store for reuse
+        private MediaPipeListener _mediaPipeListener;
 
         public MainWindowView()
         {
             InitializeComponent();
             DataContext = new MainWindowViewModel();
 
-            _popOutButton = this.FindControl<Button>("PopOutButton");
-            _mainContent = this.FindControl<ContentControl>("MainContent");
+            _cameraContainer = this.FindControl<ContentControl>("CameraContainer");
+            this.Loaded += MainWindowView_Loaded;
+        }
 
-            _popOutButton.Click += OnPopOutButtonClick;
+        private void MainWindowView_Loaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            InitializeCamera();
+        }
+
+        private void InitializeCamera()
+        {
+            // Get the listener from services
+            var app = Application.Current as App;
+            _mediaPipeListener = app?.Services?.GetService(typeof(MediaPipeListener)) as MediaPipeListener;
+
+            if (_mediaPipeListener != null)
+            {
+                _cameraViewModel = new BasicCameraViewModel(_mediaPipeListener);
+
+                var mainCameraView = new BasicCameraView
+                {
+                    DataContext = _cameraViewModel
+                };
+
+                mainCameraView.ConnectToOpenFaceListener(_mediaPipeListener);
+                mainCameraView.PopButtonClicked += OnPopButtonClicked;
+                mainCameraView.SetPopButtonText("Pop Out");
+                _cameraContainer.Content = mainCameraView;
+            }
         }
 
         private void InitializeComponent()
@@ -30,38 +55,39 @@ namespace Bachelor.Views
             AvaloniaXamlLoader.Load(this);
         }
 
-        private void OnPopOutButtonClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private void OnPopButtonClicked(object sender, EventArgs e)
         {
+            var cameraView = sender as BasicCameraView;
+
             if (_popoutWindow == null && _cameraViewModel != null)
             {
-                // Pop out - clear main content first
-                _mainContent.Content = null;
+                // Pop out logic
+                _cameraContainer.Content = null;
 
-                // Create a new view for the popup
                 var popupCameraView = new BasicCameraView
                 {
                     DataContext = _cameraViewModel
                 };
-                popupCameraView.ConnectToOpenFaceListener(_openFaceListener);
+                popupCameraView.ConnectToOpenFaceListener(_mediaPipeListener);
+                popupCameraView.SetPopButtonText("Pop In");
+                popupCameraView.PopButtonClicked += OnPopButtonClicked;
 
                 _popoutWindow = new PopoutWindow();
                 _popoutWindow.Content = popupCameraView;
-                _popoutWindow.Closed += (s, e) => {
+                _popoutWindow.Closed += (s, args) => {
                     _popoutWindow = null;
-                    
-                    // Create a new view for the main window
+
                     var mainCameraView = new BasicCameraView
                     {
                         DataContext = _cameraViewModel
                     };
-                    mainCameraView.ConnectToOpenFaceListener(_openFaceListener);
-                    _mainContent.Content = mainCameraView;
-                    
-                    _popOutButton.Content = "Pop Out";
+                    mainCameraView.ConnectToOpenFaceListener(_mediaPipeListener);
+                    mainCameraView.PopButtonClicked += OnPopButtonClicked;
+                    mainCameraView.SetPopButtonText("Pop Out");
+                    _cameraContainer.Content = mainCameraView;
                 };
 
                 _popoutWindow.Show();
-                _popOutButton.Content = "Pop In";
             }
             else if (_popoutWindow != null)
             {
@@ -69,11 +95,10 @@ namespace Bachelor.Views
             }
         }
 
-        public void SetCameraView(BasicCameraView cameraView, OpenFaceListener listener)
+        public void SetCameraView(BasicCameraView cameraView, MediaPipeListener listener)
         {
             _cameraViewModel = cameraView?.DataContext as BasicCameraViewModel;
-            _openFaceListener = listener;
-            _popOutButton.IsVisible = (_cameraViewModel != null);
+            _mediaPipeListener = listener;
         }
 
         protected override void OnClosing(WindowClosingEventArgs e)
@@ -82,7 +107,7 @@ namespace Bachelor.Views
             if (app?.Services != null)
             {
                 var pythonLauncher = app.Services.GetService(typeof(PythonLauncherService)) as PythonLauncherService;
-                pythonLauncher?.StopPythonScript(); // Assuming the correct method name is Stop
+                pythonLauncher?.StopPythonScript();
             }
 
             _popoutWindow?.Close();

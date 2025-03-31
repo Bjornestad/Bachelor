@@ -56,12 +56,12 @@ namespace Bachelor.ViewModels
                 return;
             }
 
-            // Get the OpenFaceListener service directly from App.Services
-            var openFaceListener = ((App)App.Current).Services?.GetService<OpenFaceListener>();
+            // Get the MediaPipeListener service directly from App.Services
+            var openFaceListener = ((App)App.Current).Services?.GetService<MediaPipeListener>();
 
             if (openFaceListener == null)
             {
-                Console.WriteLine("Warning: OpenFaceListener service not found");
+                Console.WriteLine("Warning: MediaPipeListener service not found");
                 return;
             }
 

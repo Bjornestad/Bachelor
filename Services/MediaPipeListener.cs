@@ -11,7 +11,7 @@ using Bachelor.Models;
 
 namespace Bachelor.Services;
 
-public class OpenFaceListener
+public class MediaPipeListener
 {
     private bool debug = true;
     private readonly MovementManagerService _movementManager;
@@ -21,7 +21,7 @@ public class OpenFaceListener
     // Event for video frame updates
     public event EventHandler<Bitmap> VideoFrameReceived;
 
-    public OpenFaceListener(MovementManagerService movementManager)
+    public MediaPipeListener(MovementManagerService movementManager)
     {
         _movementManager = movementManager;
     }
@@ -33,7 +33,7 @@ public class OpenFaceListener
         _isRunning = true;
 
         Task.Run(() => ListenForData());
-        Console.WriteLine("OpenFaceListener started and listening on 127.0.0.1:5005");
+        Console.WriteLine("MediaPipeListener started and listening on 127.0.0.1:5005");
     }
 
     private async Task ListenForData()
@@ -196,6 +196,6 @@ public class OpenFaceListener
     {
         _isRunning = false;
         _server?.Stop();
-        Console.WriteLine("OpenFaceListener stopped");
+        Console.WriteLine("MediaPipeListener stopped");
     }
 }
