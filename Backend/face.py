@@ -1,3 +1,5 @@
+import sys
+
 import cv2
 import mediapipe as mp
 import socket
@@ -22,8 +24,11 @@ server_address = ("127.0.0.1", 5005)
 data_queue = Queue(maxsize=2)  # Queue to pass data to network thread
 
 # Reduce camera resolution for faster processing
-cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
-#cap = cv2.VideoCapture(0) my webcam needs DSHOW for some reason, todo figure out why
+print("OS PLATFORM: ",sys.platform)
+if sys.platform=="darwin":
+    cap = cv2.VideoCapture(0)
+else:
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 #will need to setup a detection for this
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
