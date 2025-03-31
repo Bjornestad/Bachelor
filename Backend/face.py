@@ -6,6 +6,7 @@ import socket
 import json
 import time
 import threading
+mp_drawing = mp.solutions.drawing_utils
 from queue import Queue, Empty
 
 # Initialize MediaPipe with lower complexity settings
@@ -33,7 +34,10 @@ else:
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
-key_landmarks = [0,17,159,145,386,374,4,2,5,6,152,10]  
+#key_landmarks = [0,17,159,145,386,374,4,2,5,6,152,10]  
+key_landmarks = [4, 33, 263, 296, 66, 230, 17, 0, 61, 291, 93, 323, 450]
+
+
 #0 top lip, 17 bottom lip, 
 #159 top left eye, 145 top right eye, 386 bottom left eye, 374 bottom right eye
 #4 nose tip, 2 nose bottom, 5 nose left, 6 nose right
@@ -97,6 +101,74 @@ while cap.isOpened() and running:
         results = face_mesh.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         frame.flags.writeable = True
 
+        # Inside the main loop, after processing landmarks but before sending data:
+        if results.multi_face_landmarks:
+            landmarks = results.multi_face_landmarks[0]
+
+            if debug:
+                # Draw key landmarks
+                h, w, c = frame.shape
+                for idx in key_landmarks:
+                    landmark = landmarks.landmark[idx]
+                    x, y = int(landmark.x * w), int(landmark.y * h)
+                    cv2.circle(frame, (x, y), 3, (0, 255, 0), -1)  # Green circle
+                    cv2.putText(frame, str(idx), (x + 5, y + 5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+
+                # Nose tip (used for X,Y,Z)
+                nose_tip = landmarks.landmark[4]
+                x, y = int(nose_tip.x * w), int(nose_tip.y * h)
+                cv2.circle(frame, (x, y), 5, (0, 0, 255), -1)  # Red circle for nose tip
+
+                # Draw measurement lines
+                # Mouth height
+                mouth_top = landmarks.landmark[0]
+                mouth_bottom = landmarks.landmark[17]
+                cv2.line(frame,
+                         (int(mouth_top.x * w), int(mouth_top.y * h)),
+                         (int(mouth_bottom.x * w), int(mouth_bottom.y * h)),
+                         (255, 0, 0), 2)  # Blue line
+
+                # Roll measurement line (left-right tilt)
+                roll_left = landmarks.landmark[33]
+                roll_right = landmarks.landmark[263]
+                cv2.line(frame,
+                         (int(roll_left.x * w), int(roll_left.y * h)),
+                         (int(roll_right.x * w), int(roll_right.y * h)),
+                         (0, 255, 255), 2)  # Yellow line
+
+                # Left eyebrow height
+                left_eye_top = landmarks.landmark[296]
+                left_eyebrow = landmarks.landmark[450]
+                cv2.line(frame,
+                         (int(left_eye_top.x * w), int(left_eye_top.y * h)),
+                         (int(left_eyebrow.x * w), int(left_eyebrow.y * h)),
+                         (255, 0, 255), 2)  # Purple line
+
+                # Right eyebrow height
+                right_eye_top = landmarks.landmark[66]
+                right_eyebrow = landmarks.landmark[230]
+                cv2.line(frame,
+                         (int(right_eye_top.x * w), int(right_eye_top.y * h)),
+                         (int(right_eyebrow.x * w), int(right_eyebrow.y * h)),
+                         (255, 0, 255), 2)  # Purple line
+
+                # Mouth width
+                mouth_left = landmarks.landmark[61]
+                mouth_right = landmarks.landmark[291]
+                cv2.line(frame,
+                         (int(mouth_left.x * w), int(mouth_left.y * h)),
+                         (int(mouth_right.x * w), int(mouth_right.y * h)),
+                         (0, 165, 255), 2)  # Orange line
+
+                # Head rotation
+                rotation_left = landmarks.landmark[93]
+                rotation_right = landmarks.landmark[323]
+                cv2.line(frame,
+                         (int(rotation_left.x * w), int(rotation_left.y * h)),
+                         (int(rotation_right.x * w), int(rotation_right.y * h)),
+                         (0, 128, 0), 2)  # Dark green line
+
+
         # Send facial landmark data only when detected
         if results.multi_face_landmarks:
             landmarks = results.multi_face_landmarks[0]
@@ -106,10 +178,11 @@ while cap.isOpened() and running:
                 "Y": round(landmarks.landmark[4].y, 3),
                 "Z": round(landmarks.landmark[4].z, 3),
                 "Roll": round(landmarks.landmark[33].y - landmarks.landmark[263].y, 3),
-                "LeftEyebrowHeight": round(landmarks.landmark[296].y, 3),
-                "RightEyebrowHeight": round(landmarks.landmark[105].y, 3),
+                "LeftEyebrowHeight": round(landmarks.landmark[296].y - landmarks.landmark[450].y, 3),
+                "RightEyebrowHeight": round(landmarks.landmark[66].y -landmarks.landmark[230].y , 3),
                 "MouthHeight": round(landmarks.landmark[17].y - landmarks.landmark[0].y, 3),
-                "MouthWidth": round(abs(landmarks.landmark[61].x - landmarks.landmark[291].x), 3)
+                "MouthWidth": round(abs(landmarks.landmark[61].x - landmarks.landmark[291].x), 3),
+                "HeadRotation": round(landmarks.landmark[93].z - landmarks.landmark[323].z, 3),
             }
 
             # Put data in queue for network thread (non-blocking)
@@ -125,7 +198,6 @@ while cap.isOpened() and running:
             if _:
                 try:
                     data_queue.put_nowait(img_encoded.tobytes())
-                    print(f"Queued image: {len(img_encoded.tobytes())} bytes")
                 except Exception as e:
                     print(f"Failed to queue image: {e}")
 

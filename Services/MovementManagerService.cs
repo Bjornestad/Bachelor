@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using Avalonia.Input;
 using Bachelor.Models;
@@ -22,6 +23,8 @@ public class MovementManagerService
         public double Sensitivity { get; set; }
         public string Coordinate { get; set; } 
         public string Direction { get; set; }
+        public bool Enabled { get; set; }
+        public bool Continuous { get; set; }
     }
     
     public MovementManagerService()
@@ -56,6 +59,7 @@ public class MovementManagerService
     public void ProcessFacialData(FacialTrackingData data)
     {
         //todo make something that actually works
+        
     }
     
     private double GetCoordinateValue(FacialTrackingData data, string coordinate)

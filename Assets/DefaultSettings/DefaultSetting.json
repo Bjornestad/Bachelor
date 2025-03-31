@@ -4,7 +4,9 @@
     "threshold": 0.5,
     "sensitivity": 5,
     "coordinate": "X",
-    "direction": "Negative"
+    "direction": "Negative",
+    "Enabled" : true,
+    "Continuous" : false
   },
   "HeadRight": {
     "key": "D",

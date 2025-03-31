@@ -97,7 +97,8 @@ public class MediaPipeListener
                             {
                                 Console.WriteLine($"Parsed data: X={data.X:F3}, Y={data.Y:F3}, Z={data.Z:F3}, Roll={data.Roll:F3}, " +
                                                   $"LeftEyebrowHeight={data.LeftEyebrowHeight:F3}, RightEyebrowHeight={data.RightEyebrowHeight:F3}, " +
-                                                  $"MouthHeight={data.MouthHeight:F3}, MouthWidth={data.MouthWidth:F3}");
+                                                  $"MouthHeight={data.MouthHeight:F3}, MouthWidth={data.MouthWidth:F3} " +
+                                                  $"Headrotation={data.HeadRotation:F3}");
                                 lastPrintTime = DateTime.Now;
                             }
 

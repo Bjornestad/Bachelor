@@ -57,8 +57,6 @@ namespace Bachelor.Views
 
         private void OnPopButtonClicked(object sender, EventArgs e)
         {
-            var cameraView = sender as BasicCameraView;
-
             if (_popoutWindow == null && _cameraViewModel != null)
             {
                 // Pop out logic
