@@ -13,7 +13,7 @@ namespace Bachelor.Services;
 
 public class MediaPipeListener
 {
-    private bool debug = true;
+    private bool debug = false;
     private readonly MovementManagerService _movementManager;
     private TcpListener _server;
     private bool _isRunning;
@@ -95,10 +95,11 @@ public class MediaPipeListener
 
                             if (debug && DateTime.Now - lastPrintTime > printInterval)
                             {
-                                Console.WriteLine($"Position: X={data.X:F3}, Y={data.Y:F3}, Z={data.Z:F3}\n" +
-                                                  $"Eyes: L.Corner={data.lEyeCornerY:F3}, R.Corner={data.rEyeCornerY:F3}, Roll={data.Roll:F3}\n" +
+                                Console.WriteLine($"Position: X={data.X:F3}, Y={data.Y:F3}, Z={data.Z:F3}\n " +
+                                                  $"Eyes: L.Corner={data.lEyeCornerY:F3}, " +
+                                                  $"R.Corner={data.rEyeCornerY:F3}, Roll={data.Roll:F3}\n " +
                                                   $"Eyebrows: L.Height={data.LeftEyebrowHeight:F3} (from {data.lEyebrowY:F3}/{data.lEyesocketY:F3}), " +
-                                                  $"R.Height={data.RightEyebrowHeight:F3} (from {data.rEyebrowY:F3}/{data.rEyesocketY:F3})\n" +
+                                                  $"R.Height={data.RightEyebrowHeight:F3} (from {data.rEyebrowY:F3}/{data.rEyesocketY:F3})\n " +
                                                   $"Mouth: Height={data.MouthHeight:F3} (from {data.MouthTopY:F3}/{data.MouthBotY:F3}), " +
                                                   $"Width={data.MouthWidth:F3} (from {data.MouthLX:F3}/{data.MouthRX:F3})\n" +
                                                   $"Head: Rotation={data.HeadRotation:F3} (from L.Ear={data.lEarZ:F3}, R.Ear={data.rEarZ:F3})");

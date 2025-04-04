@@ -1,81 +1,148 @@
 ﻿{
   "HeadLeft": {
     "key": "A",
-    "threshold": 0.5,
-    "sensitivity": 5,
-    "coordinate": "X",
+    "threshold": 0.01,
+    "sensitivity": 3,
+    "coordinate": "NoseX",
     "direction": "Negative",
-    "Enabled" : true,
-    "Continuous" : false
+    "Enabled": true,
+    "Continuous": false,
+    "IsRelative": false
   },
   "HeadRight": {
     "key": "D",
     "threshold": 0.5,
     "sensitivity": 5,
-    "coordinate": "X",
-    "direction": "Negative"
+    "coordinate": "NoseX",
+    "direction": "Positive",
+    "Enabled": true,
+    "Continuous": false,
+    "IsRelative": false
   },
   "HeadUp": {
     "key": "W",
     "threshold": 0.5,
     "sensitivity": 5,
-    "coordinate": "Y",
-    "direction": "Negative"
+    "coordinate": "NoseY",
+    "direction": "Negative",
+    "Enabled": true,
+    "Continuous": false,
+    "IsRelative": false
   },
   "HeadDown": {
     "key": "S",
     "threshold": 0.5,
     "sensitivity": 5,
-    "coordinate": "Y",
-    "direction": "Positive"
+    "coordinate": "NoseY",
+    "direction": "Positive",
+    "Enabled": true,
+    "Continuous": false,
+    "IsRelative": false
   },
   "HeadTiltLeft": {
     "key": "Q",
-    "threshold": 0.5,
-    "sensitivity": 5,
+    "threshold": 0.2,
+    "sensitivity": 3.0,
     "coordinate": "Roll",
-    "direction": "Negative"
+    "direction": "Negative",
+    "Enabled": true,
+    "Continuous": true,
+    "IsRelative": true,
+    "RelativeFrom": "lEyeCornerY",
+    "RelativeTo": "rEyeCornerY"
   },
   "HeadTiltRight": {
     "key": "E",
-    "threshold": 0.5,
-    "sensitivity": 5,
+    "threshold": 0.2,
+    "sensitivity": 3.0,
     "coordinate": "Roll",
-    "direction": "Positive"
+    "direction": "Positive",
+    "Enabled": true,
+    "Continuous": true,
+    "IsRelative": true,
+    "RelativeFrom": "rEyeCornerY",
+    "RelativeTo": "lEyeCornerY"
   },
   "LeftEyebrowRaise": {
     "key": "Up",
-    "threshold": 1,
-    "sensitivity": 5,
+    "threshold": 0.3,
+    "sensitivity": 3.0,
     "coordinate": "LeftEyebrow",
-    "direction": "Positive"
+    "direction": "Positive",
+    "Enabled": true,
+    "Continuous": false,
+    "IsRelative": true,
+    "RelativeFrom": "lEyebrowY",
+    "RelativeTo": "lEyesocketY"
   },
   "RightEyebrowRaise": {
-    "key": "E",
-    "threshold": 0.5,
-    "sensitivity": 5,
+    "key": "Right",
+    "threshold": 0.3,
+    "sensitivity": 3.0,
     "coordinate": "RightEyebrow",
-    "direction": "Positive"
+    "direction": "Positive",
+    "Enabled": true,
+    "Continuous": false,
+    "IsRelative": true,
+    "RelativeFrom": "rEyebrowY",
+    "RelativeTo": "rEyesocketY"
   },
   "Blink": {
-    "key": "Space",
+    "key": "B",
     "threshold": 0.5,
     "sensitivity": 5,
     "coordinate": "EyesClosed",
-    "direction": "Positive"
+    "direction": "Positive",
+    "Enabled": true,
+    "Continuous": false,
+    "IsRelative": false
   },
   "MouthOpen": {
     "key": "Space",
-    "threshold": 0.5,
-    "sensitivity": 5,
+    "threshold": 0.001,
+    "sensitivity": 2.0,
     "coordinate": "MouthHeight",
-    "direction": "Positive"
+    "direction": "Positive",
+    "Enabled": true,
+    "Continuous": false,
+    "IsRelative": true,
+    "RelativeFrom": "MouthTopY",
+    "RelativeTo": "MouthBotY"
   },
   "MouthWide": {
     "key": "Enter",
-    "threshold": 0.5,
-    "sensitivity": 5,
+    "threshold": 0.3,
+    "sensitivity": 2.0,
     "coordinate": "MouthWidth",
-    "direction": "Positive"
+    "direction": "Positive",
+    "Enabled": true,
+    "Continuous": false,
+    "IsRelative": true,
+    "RelativeFrom": "MouthLX",
+    "RelativeTo": "MouthRX"
+  },
+  "HeadTurnLeft": {
+    "key": "Left",
+    "threshold": 0.05,
+    "sensitivity": 3.0,
+    "coordinate": "HeadRotation",
+    "direction": "Negative",
+    "Enabled": true,
+    "Continuous": true,
+    "IsRelative": true,
+    "RelativeFrom": "rEarZ",
+    "RelativeTo": "lEarZ"
+  },
+  "HeadTurnRight": {
+    "key": "Right",
+    "threshold": 0.05,
+    "sensitivity": 3.0,
+    "coordinate": "HeadRotation",
+    "direction": "Positive",
+    "Enabled": true,
+    "Continuous": true,
+    "IsRelative": true,
+    "RelativeFrom": "lEarZ",
+    "RelativeTo": "rEarZ"
   }
 }

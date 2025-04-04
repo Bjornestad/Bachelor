@@ -106,7 +106,6 @@ while cap.isOpened() and running:
             landmarks = results.multi_face_landmarks[0]
 
             if debug:
-                # Draw key landmarks
                 h, w, c = frame.shape
                 for idx in key_landmarks:
                     landmark = landmarks.landmark[idx]
@@ -114,60 +113,87 @@ while cap.isOpened() and running:
                     cv2.circle(frame, (x, y), 3, (0, 255, 0), -1)  # Green circle
                     cv2.putText(frame, str(idx), (x + 5, y + 5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
 
-                # Nose tip (used for X,Y,Z)
-                nose_tip = landmarks.landmark[4]
-                x, y = int(nose_tip.x * w), int(nose_tip.y * h)
-                cv2.circle(frame, (x, y), 5, (0, 0, 255), -1)  # Red circle for nose tip
+                    # Nose tip (used for X,Y,Z)
+                    nose_tip = landmarks.landmark[4]
+                    x, y = int(nose_tip.x * w), int(nose_tip.y * h)
+                    cv2.circle(frame, (x, y), 5, (0, 0, 255), -1)  # Red circle for nose tip
+                    cv2.putText(frame, f"Pos: X={nose_tip.x:.3f}, Y={nose_tip.y:.3f}, Z={nose_tip.z:.3f}",
+                                (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
-                # Draw measurement lines
-                # Mouth height
-                mouth_top = landmarks.landmark[0]
-                mouth_bottom = landmarks.landmark[17]
-                cv2.line(frame,
-                         (int(mouth_top.x * w), int(mouth_top.y * h)),
-                         (int(mouth_bottom.x * w), int(mouth_bottom.y * h)),
-                         (255, 0, 0), 2)  # Blue line
-
-                # Roll measurement line (left-right tilt)
-                roll_left = landmarks.landmark[33]
-                roll_right = landmarks.landmark[263]
-                cv2.line(frame,
-                         (int(roll_left.x * w), int(roll_left.y * h)),
-                         (int(roll_right.x * w), int(roll_right.y * h)),
-                         (0, 255, 255), 2)  # Yellow line
-
-                # Left eyebrow height
-                left_eye_top = landmarks.landmark[296]
-                left_eyebrow = landmarks.landmark[450]
-                cv2.line(frame,
-                         (int(left_eye_top.x * w), int(left_eye_top.y * h)),
-                         (int(left_eyebrow.x * w), int(left_eyebrow.y * h)),
-                         (255, 0, 255), 2)  # Purple line
-
-                # Right eyebrow height
-                right_eye_top = landmarks.landmark[66]
-                right_eyebrow = landmarks.landmark[230]
-                cv2.line(frame,
-                         (int(right_eye_top.x * w), int(right_eye_top.y * h)),
-                         (int(right_eyebrow.x * w), int(right_eyebrow.y * h)),
-                         (255, 0, 255), 2)  # Purple line
-
-                # Mouth width
-                mouth_left = landmarks.landmark[61]
-                mouth_right = landmarks.landmark[291]
-                cv2.line(frame,
-                         (int(mouth_left.x * w), int(mouth_left.y * h)),
-                         (int(mouth_right.x * w), int(mouth_right.y * h)),
-                         (0, 165, 255), 2)  # Orange line
-
-                # Head rotation
-                rotation_left = landmarks.landmark[93]
-                rotation_right = landmarks.landmark[323]
-                cv2.line(frame,
-                         (int(rotation_left.x * w), int(rotation_left.y * h)),
-                         (int(rotation_right.x * w), int(rotation_right.y * h)),
-                         (0, 128, 0), 2)  # Dark green line
-
+                    # Draw measurement lines
+                    # Mouth height
+                    mouth_top = landmarks.landmark[0]
+                    mouth_bottom = landmarks.landmark[17]
+                    mouth_height = abs(mouth_bottom.y - mouth_top.y)
+                    mid_x = int((mouth_top.x + mouth_bottom.x) * w / 2)
+                    mid_y = int((mouth_top.y + mouth_bottom.y) * h / 2)
+                    cv2.line(frame,
+                             (int(mouth_top.x * w), int(mouth_top.y * h)),
+                             (int(mouth_bottom.x * w), int(mouth_bottom.y * h)),
+                             (255, 0, 0), 2)  # Blue line
+                    cv2.putText(frame, f"{mouth_height:.3f}", (mid_x + 5, mid_y),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1)
+                
+                    # Roll measurement line (left-right tilt)
+                    roll_left = landmarks.landmark[33]
+                    roll_right = landmarks.landmark[263]
+                    roll_value = roll_right.y - roll_left.y
+                    mid_x = int((roll_left.x + roll_right.x) * w / 2)
+                    mid_y = int((roll_left.y + roll_right.y) * h / 2)
+                    cv2.line(frame,
+                             (int(roll_left.x * w), int(roll_left.y * h)),
+                             (int(roll_right.x * w), int(roll_right.y * h)),
+                             (0, 255, 255), 2)  # Yellow line
+                    cv2.putText(frame, f"{roll_value:.3f}", (mid_x + 5, mid_y - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1)
+                
+                    # Left eyebrow height
+                    left_eye_top = landmarks.landmark[296]
+                    left_eyebrow = landmarks.landmark[450]
+                    left_eyebrow_height = abs(left_eyebrow.y - left_eye_top.y)
+                    cv2.line(frame,
+                             (int(left_eye_top.x * w), int(left_eye_top.y * h)),
+                             (int(left_eyebrow.x * w), int(left_eyebrow.y * h)),
+                             (255, 0, 255), 2)  # Purple line
+                    cv2.putText(frame, f"{left_eyebrow_height:.3f}",
+                                (int(left_eyebrow.x * w) + 5, int((left_eyebrow.y + left_eye_top.y) * h / 2)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
+                
+                    # Right eyebrow height
+                    right_eye_top = landmarks.landmark[66]
+                    right_eyebrow = landmarks.landmark[230]
+                    right_eyebrow_height = abs(right_eyebrow.y - right_eye_top.y)
+                    cv2.line(frame,
+                             (int(right_eye_top.x * w), int(right_eye_top.y * h)),
+                             (int(right_eyebrow.x * w), int(right_eyebrow.y * h)),
+                             (255, 0, 255), 2)  # Purple line
+                    cv2.putText(frame, f"{right_eyebrow_height:.3f}",
+                                (int(right_eyebrow.x * w) - 40, int((right_eyebrow.y + right_eye_top.y) * h / 2)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
+                
+                    # Mouth width
+                    mouth_left = landmarks.landmark[61]
+                    mouth_right = landmarks.landmark[291]
+                    mouth_width = abs(mouth_right.x - mouth_left.x)
+                    cv2.line(frame,
+                             (int(mouth_left.x * w), int(mouth_left.y * h)),
+                             (int(mouth_right.x * w), int(mouth_right.y * h)),
+                             (0, 165, 255), 2)  # Orange line
+                    cv2.putText(frame, f"{mouth_width:.3f}",
+                                (int((mouth_left.x + mouth_right.x) * w / 2), int(mouth_left.y * h) - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 165, 255), 1)
+                
+                    # Head rotation
+                    rotation_left = landmarks.landmark[93]
+                    rotation_right = landmarks.landmark[323]
+                    head_rotation = rotation_right.z - rotation_left.z
+                    cv2.line(frame,
+                             (int(rotation_left.x * w), int(rotation_left.y * h)),
+                             (int(rotation_right.x * w), int(rotation_right.y * h)),
+                             (0, 128, 0), 2)  # Dark green line
+                    cv2.putText(frame, f"{head_rotation:.3f}",
+                                (int((rotation_left.x + rotation_right.x) * w / 2), int((rotation_left.y + rotation_right.y) * h / 2) - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 128, 0), 1)
 
         # Send facial landmark data only when detected
         if results.multi_face_landmarks:
