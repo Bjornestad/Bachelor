@@ -18,7 +18,7 @@ face_mesh = mp_face_mesh.FaceMesh(
     min_tracking_confidence=0.5
 )
 
-debug = False
+debug = True
 
 # Socket configuration
 server_address = ("127.0.0.1", 5005)
@@ -174,15 +174,22 @@ while cap.isOpened() and running:
             landmarks = results.multi_face_landmarks[0]
 
             processed_data = {
-                "X": round(landmarks.landmark[4].x, 3),
-                "Y": round(landmarks.landmark[4].y, 3),
-                "Z": round(landmarks.landmark[4].z, 3),
-                "Roll": round(landmarks.landmark[33].y - landmarks.landmark[263].y, 3),
-                "LeftEyebrowHeight": round(landmarks.landmark[296].y - landmarks.landmark[450].y, 3),
-                "RightEyebrowHeight": round(landmarks.landmark[66].y -landmarks.landmark[230].y , 3),
-                "MouthHeight": round(landmarks.landmark[17].y - landmarks.landmark[0].y, 3),
-                "MouthWidth": round(abs(landmarks.landmark[61].x - landmarks.landmark[291].x), 3),
-                "HeadRotation": round(landmarks.landmark[93].z - landmarks.landmark[323].z, 3),
+                "4x": round(landmarks.landmark[4].x, 3),
+                "4y": round(landmarks.landmark[4].y, 3),
+                "4z": round(landmarks.landmark[4].z, 3),
+                "rEyeCornerY": round(landmarks.landmark[33].y, 3),
+                "lEyeCornerY": round(landmarks.landmark[263].y, 3),
+                "lEyebrowY": round(landmarks.landmark[296].y, 3),
+                "lEyesocketY": round(landmarks.landmark[450].y, 3),
+                "rEyebrowY": round(landmarks.landmark[66].y, 3),
+                "rEyesocketY": round(landmarks.landmark[230].y , 3),
+                "MouthBotY": round(landmarks.landmark[17].y, 3),
+                "MouthTopY": round(landmarks.landmark[0].y, 3),
+                "MouthRX": round(landmarks.landmark[61].x, 3),
+                "MouthLX": round(landmarks.landmark[291].x, 3),
+                "rEarZ": round(landmarks.landmark[93].z, 3),
+                "lEarZ": round(landmarks.landmark[323].z, 3),
+                
             }
 
             # Put data in queue for network thread (non-blocking)
