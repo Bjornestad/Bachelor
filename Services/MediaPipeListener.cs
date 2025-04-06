@@ -95,17 +95,16 @@ public class MediaPipeListener
 
                             if (debug && DateTime.Now - lastPrintTime > printInterval)
                             {
-                                Console.WriteLine($"Position: X={data.X:F3}, Y={data.Y:F3}, Z={data.Z:F3}\n " +
-                                                  $"Eyes: L.Corner={data.lEyeCornerY:F3}, " +
-                                                  $"R.Corner={data.rEyeCornerY:F3}, Roll={data.Roll:F3}\n " +
-                                                  $"Eyebrows: L.Height={data.LeftEyebrowHeight:F3} (from {data.lEyebrowY:F3}/{data.lEyesocketY:F3}), " +
-                                                  $"R.Height={data.RightEyebrowHeight:F3} (from {data.rEyebrowY:F3}/{data.rEyesocketY:F3})\n " +
-                                                  $"Mouth: Height={data.MouthHeight:F3} (from {data.MouthTopY:F3}/{data.MouthBotY:F3}), " +
-                                                  $"Width={data.MouthWidth:F3} (from {data.MouthLX:F3}/{data.MouthRX:F3})\n" +
-                                                  $"Head: Rotation={data.HeadRotation:F3} (from L.Ear={data.lEarZ:F3}, R.Ear={data.rEarZ:F3})");
+                                Console.WriteLine($"{data.MouthBotY - data.MouthTopY:F3} : Mouth openness");
+                                Console.WriteLine($"{data.MouthLX - data.MouthRX:F3} : Mouth width");
+                                Console.WriteLine($"{data.rEyebrowY - data.rEyesocketY:F3} : EyebrowR height");
+                                Console.WriteLine($"{data.lEyebrowY - data.lEyesocketY:F3} : EyebrowL height");
+                                Console.WriteLine($"{data.Roll:F3} : Head tilt");
+                                Console.WriteLine($"{data.HeadRotation:F3} : Head rotation");
+                                Console.WriteLine($"{data.HeadPitch:F3} : Head pitch");
                                 lastPrintTime = DateTime.Now;
                             }
-
+                            
                             _movementManager.ProcessFacialData(data);
                         }
                         else if (header.StartsWith("IMAGE:"))
@@ -157,7 +156,6 @@ public class MediaPipeListener
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Error processing data: {ex.Message}");
-                        // Continue to next message
                     }
                 }
             }

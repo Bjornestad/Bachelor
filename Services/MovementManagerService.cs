@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using Avalonia.Input;
 using Bachelor.Models;
@@ -12,10 +11,15 @@ public class MovementManagerService
 {
     private readonly Dictionary<string, MovementSetting> _settings;
     private FacialTrackingData _previousData;
-    private FacialTrackingData _calibrationData;
     private Dictionary<string, bool> _movementStates = new Dictionary<string, bool>();
-
-
+    private Dictionary<string, double> _normalizedOffsets = new Dictionary<string, double>();
+    private bool _hasCalibrated = false;
+    private bool debug = false;
+    private DateTime _lastPrintTime = DateTime.MinValue;
+    private readonly TimeSpan _printInterval = TimeSpan.FromMilliseconds(500);
+    private int _dataPointsBeforeCalibration = 10;
+    private int _dataPointsReceived = 0;
+    
     public class MovementSetting
     {
         public string Key { get; set; }
@@ -45,72 +49,108 @@ public class MovementManagerService
             Directory.CreateDirectory(settingsDirectory);
         }
 
-        // Create default settings file if it doesn't exist
-        if (!File.Exists(settingsPath))
+        // Force recreation of settings file with correct values
+        _settings = MovementSettingsHelper.CreateDefaultSettings();
+    
+        // Debug - examine what's in the settings
+        foreach (var entry in _settings)
         {
-            _settings = MovementSettingsHelper.CreateDefaultSettings();
-            string defaultJson =
-                JsonSerializer.Serialize(_settings, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(settingsPath, defaultJson);
+            Console.WriteLine($"Default setting: {entry.Key}, coordinate={entry.Value.Coordinate}, enabled={entry.Value.Enabled}");
         }
-        else
-        {
-            // Load settings from JSON
-            string json = File.ReadAllText(settingsPath);
-            _settings = JsonSerializer.Deserialize<Dictionary<string, MovementSetting>>(json);
-        }
-
+    
+        string defaultJson = JsonSerializer.Serialize(_settings, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(settingsPath, defaultJson);
+        Console.WriteLine($"Created settings file at: {settingsPath}");
     }
 
     public void ProcessFacialData(FacialTrackingData data)
     {
-        // Initialize previous data if null
-        _previousData ??= new FacialTrackingData();
-
-        // Set calibration data if it doesn't exist
-        if (_calibrationData == null)
+       /*
+        Console.WriteLine("Active movement settings:");
+        foreach (var entry in _settings)
         {
-            _calibrationData = data;
-            Console.WriteLine("Calibration set");
+            Console.WriteLine($"  {entry.Key}: key={entry.Value.Key}, enabled={entry.Value.Enabled}, coordinate='{entry.Value.Coordinate}', threshold={entry.Value.Threshold}, sensitivity={entry.Value.Sensitivity}");
+        }
+        */
+        // Skip processing if this is the first data point
+        if (_previousData == null)
+        {
+            Console.WriteLine("First data point - storing as baseline");
+            _previousData = data;
             return;
         }
+        
+        _dataPointsReceived++;
+        if (!_hasCalibrated && _dataPointsReceived >= _dataPointsBeforeCalibration)
+        {
+            Console.WriteLine("Auto-calibrating after receiving enough data...");
+            CalibrateNormalization(data);
+        }
+        //Console.WriteLine($"Calibration status: {(_hasCalibrated ? "Calibrated" : "Not calibrated")}");
 
-        // Process each movement
+        if (debug && _hasCalibrated && DateTime.Now - _lastPrintTime > _printInterval)
+        {
+            Console.WriteLine("--- NORMALIZED VALUES ---");
+            Console.WriteLine($"{GetCoordinateValue(data, new MovementSetting { Coordinate = "MouthHeight" }):F3} : Normalized Mouth openness");
+            Console.WriteLine($"{GetCoordinateValue(data, new MovementSetting { Coordinate = "MouthWidth" }):F3} : Normalized Mouth width");
+            Console.WriteLine($"{GetCoordinateValue(data, new MovementSetting { Coordinate = "RightEyebrowHeight" }):F3} : Normalized EyebrowR height");
+            Console.WriteLine($"{GetCoordinateValue(data, new MovementSetting { Coordinate = "LeftEyebrowHeight" }):F3} : Normalized EyebrowL height");
+            Console.WriteLine($"{GetCoordinateValue(data, new MovementSetting { Coordinate = "Roll" }):F3} : Normalized Head tilt");
+            Console.WriteLine($"{GetCoordinateValue(data, new MovementSetting { Coordinate = "HeadRotation" }):F3} : Normalized Head rotation");
+            Console.WriteLine($"{GetCoordinateValue(data, new MovementSetting { Coordinate = "HeadPitch" }):F3} : Normalized Head pitch");
+            _lastPrintTime = DateTime.Now;
+        }
+
+        // Process each configured movement
         foreach (var entry in _settings)
         {
             string movementName = entry.Key;
             MovementSetting setting = entry.Value;
 
+            // Skip disabled movements
             if (!setting.Enabled)
                 continue;
 
-            // Get the current and base values
-            double currentValue = GetCoordinateValue(data, setting);
-            double baseValue = GetCoordinateValue(_calibrationData, setting);
-            double relativeChange = currentValue - baseValue;
+            // Get the current value for this movement's coordinate
+            double value = GetCoordinateValue(data, setting);
 
-            // Apply sensitivity
-            double adjustedValue = relativeChange * setting.Sensitivity;
-
-            // Determine if threshold is exceeded based on direction
-            bool thresholdExceeded = setting.Direction == "Positive"
-                ? adjustedValue > setting.Threshold
-                : setting.Direction == "Negative"
-                    ? adjustedValue < -setting.Threshold
-                    : Math.Abs(adjustedValue) > setting.Threshold;
-
-            // Track movement state
-            if (!_movementStates.ContainsKey(movementName))
-                _movementStates[movementName] = false;
-
-            // Trigger key press
-            if (thresholdExceeded)
+            // Apply sensitivity directly to the absolute value
+            double adjustedValue = value * setting.Sensitivity;
+            
+            // Debug output for head movements
+            /*
+            if (movementName.ToLower().Contains("head") || movementName.ToLower().Contains("tilt"))
             {
-                if (setting.Continuous || !_movementStates[movementName])
+                Console.WriteLine($"{movementName}: raw={value:F3}, adjusted={adjustedValue:F3}, threshold={setting.Threshold:F3}");
+                Console.WriteLine($"  Would trigger: {(setting.Direction == "Positive" ? adjustedValue >= setting.Threshold : adjustedValue <= -setting.Threshold)}");
+            }*/
+
+            // Check if movement should trigger based on threshold and direction
+            bool shouldTrigger = false;
+            if (setting.Direction == "Positive" && adjustedValue >= setting.Threshold)
+            {
+                shouldTrigger = true;
+            }
+            else if (setting.Direction == "Negative" && adjustedValue <= -setting.Threshold)
+            {
+                shouldTrigger = true;
+            }
+
+            // Handle triggering based on movement type
+            if (shouldTrigger)
+            {
+                // For continuous movements, trigger constantly while active
+                if (setting.Continuous)
                 {
                     SimulateKeyPress(setting.Key, movementName);
-                    _movementStates[movementName] = true;
                 }
+                // For non-continuous movements, only trigger on state change
+                else if (!_movementStates.ContainsKey(movementName) || !_movementStates[movementName])
+                {
+                    SimulateKeyPress(setting.Key, movementName);
+                }
+
+                _movementStates[movementName] = true;
             }
             else
             {
@@ -118,58 +158,54 @@ public class MovementManagerService
             }
         }
 
+        // Save current data for next comparison
         _previousData = data;
+    }
+    public void CalibrateNormalization(FacialTrackingData neutralData)
+    {
+        _normalizedOffsets.Clear();
+        
+        // Store the offsets for all relevant properties
+        _normalizedOffsets["MouthHeight"] = neutralData.MouthHeight;
+        _normalizedOffsets["MouthWidth"] = neutralData.MouthWidth;
+        _normalizedOffsets["LeftEyebrowHeight"] = neutralData.LeftEyebrowHeight;
+        _normalizedOffsets["RightEyebrowHeight"] = neutralData.RightEyebrowHeight;
+        _normalizedOffsets["Roll"] = neutralData.Roll;
+        _normalizedOffsets["HeadRotation"] = neutralData.HeadRotation;
+        _normalizedOffsets["HeadPitch"] = neutralData.HeadPitch;
+        
+        _hasCalibrated = true;
+        Console.WriteLine("Normalization calibration complete");
     }
 
     private double GetCoordinateValue(FacialTrackingData data, MovementSetting setting)
     {
-        // If relative coordinates are specified, calculate the difference
-        if (setting.IsRelative && !string.IsNullOrEmpty(setting.RelativeFrom) &&
-            !string.IsNullOrEmpty(setting.RelativeTo))
+        // Add safety check for empty coordinate
+        if (string.IsNullOrEmpty(setting.Coordinate))
         {
-            double fromValue = GetSingleCoordinateValue(data, setting.RelativeFrom);
-            double toValue = GetSingleCoordinateValue(data, setting.RelativeTo);
-            return toValue - fromValue;
+            Console.WriteLine($"Warning: Empty coordinate for setting");
+            return 0.0;
         }
 
-        // Otherwise use the single coordinate
-        return GetSingleCoordinateValue(data, setting.Coordinate);
-    }
-
-    private double GetSingleCoordinateValue(FacialTrackingData data, string coordinate)
-    {
-        return coordinate switch
+        var property = typeof(FacialTrackingData).GetProperty(setting.Coordinate);
+        if (property != null && property.PropertyType == typeof(double))
         {
-            "NoseX" => data.X,
-            "NoseY" => data.Y,
-            "NoseZ" => data.Z,
-            "rEyeCornerY" => data.rEyeCornerY,
-            "lEyeCornerY" => data.lEyeCornerY,
-            "lEyebrowY" => data.lEyebrowY,
-            "lEyesocketY" => data.lEyesocketY,
-            "rEyebrowY" => data.rEyebrowY,
-            "rEyesocketY" => data.rEyesocketY,
-            "MouthTopY" => data.MouthTopY,
-            "MouthBotY" => data.MouthBotY,
-            "MouthLX" => data.MouthLX,
-            "MouthRX" => data.MouthRX,
-            "lEarZ" => data.lEarZ,
-            "rEarZ" => data.rEarZ,
-            "rEarX" => data.rEarZ,
-            "lEarX" => data.lEarZ,
+            double value = (double)property.GetValue(data);
 
-            // Use calculated properties as well
-            "Roll" => data.Roll,
-            "LeftEyebrowHeight" => data.LeftEyebrowHeight,
-            "RightEyebrowHeight" => data.RightEyebrowHeight,
-            "MouthHeight" => data.MouthHeight,
-            "MouthWidth" => data.MouthWidth,
-            "HeadRotation" => data.HeadRotation,
-            _ => 0.0
-        };
+            // Apply normalization if calibrated
+            if (_hasCalibrated && _normalizedOffsets.ContainsKey(setting.Coordinate))
+            {
+                value -= _normalizedOffsets[setting.Coordinate];
+            }
+
+            return value;
+        }
+        else
+        {
+            Console.WriteLine($"Warning: Could not find property {setting.Coordinate} on FacialTrackingData");
+            return 0.0;
+        }
     }
-
-
     private void SimulateKeyPress(string keyName, string movementName)
     {
         if (Enum.TryParse<Key>(keyName, out var key))
