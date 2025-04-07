@@ -17,6 +17,7 @@ public class MediaPipeListener
     private readonly MovementManagerService _movementManager;
     private TcpListener _server;
     private bool _isRunning;
+    private System.Timers.Timer _checkInputTimer;
 
     // Event for video frame updates
     public event EventHandler<Bitmap> VideoFrameReceived;
@@ -24,6 +25,11 @@ public class MediaPipeListener
     public MediaPipeListener(MovementManagerService movementManager)
     {
         _movementManager = movementManager;
+        
+        // Create a timer to check for input timeout
+        _checkInputTimer = new System.Timers.Timer(500); // Check every 500ms
+        _checkInputTimer.Elapsed += (s, e) => _movementManager.CheckInputTimeout();
+        _checkInputTimer.AutoReset = true;
     }
 
     public void Start()
@@ -31,6 +37,7 @@ public class MediaPipeListener
         _server = new TcpListener(IPAddress.Parse("127.0.0.1"), 5005);
         _server.Start();
         _isRunning = true;
+        _checkInputTimer.Start();
 
         Task.Run(() => ListenForData());
         Console.WriteLine("MediaPipeListener started and listening on 127.0.0.1:5005");
@@ -199,6 +206,7 @@ public class MediaPipeListener
     {
         _isRunning = false;
         _server?.Stop();
+        _checkInputTimer.Stop();
         Console.WriteLine("MediaPipeListener stopped");
     }
 }

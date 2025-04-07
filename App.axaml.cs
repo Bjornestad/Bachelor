@@ -36,6 +36,8 @@ public partial class App : Application
         services.AddSingleton<MediaPipeListener>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<PythonLauncherService>();
+        services.AddSingleton<InputService>();
+
 
         
         // Build service provider

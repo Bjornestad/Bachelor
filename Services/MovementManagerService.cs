@@ -19,6 +19,11 @@ public class MovementManagerService
     private readonly TimeSpan _printInterval = TimeSpan.FromMilliseconds(500);
     private int _dataPointsBeforeCalibration = 10;
     private int _dataPointsReceived = 0;
+    private DateTime _lastInputTime = DateTime.Now;
+    private bool _inputActive = false;
+    private readonly TimeSpan _inputTimeout = TimeSpan.FromSeconds(1.5);
+    private bool _hasReportedStop = false;
+    private readonly InputService _inputService;
     
     public class MovementSetting
     {
@@ -30,14 +35,12 @@ public class MovementManagerService
         public bool Enabled { get; set; }
         public bool Continuous { get; set; }
 
-        // New properties for relative measurements
-        public bool IsRelative { get; set; }
-        public string RelativeFrom { get; set; }
-        public string RelativeTo { get; set; }
     }
 
-    public MovementManagerService()
+    public MovementManagerService(InputService inputService)
     {
+        _inputService = inputService;
+
         // Set up paths
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         string settingsDirectory = Path.Combine(baseDirectory, "Assets", "DefaultSettings");
@@ -51,28 +54,29 @@ public class MovementManagerService
 
         // Force recreation of settings file with correct values
         _settings = MovementSettingsHelper.CreateDefaultSettings();
-    
+
         // Debug - examine what's in the settings
         foreach (var entry in _settings)
         {
             Console.WriteLine($"Default setting: {entry.Key}, coordinate={entry.Value.Coordinate}, enabled={entry.Value.Enabled}");
         }
-    
+
         string defaultJson = JsonSerializer.Serialize(_settings, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(settingsPath, defaultJson);
         Console.WriteLine($"Created settings file at: {settingsPath}");
     }
-
+    
     public void ProcessFacialData(FacialTrackingData data)
     {
-       /*
-        Console.WriteLine("Active movement settings:");
-        foreach (var entry in _settings)
+        
+        _lastInputTime = DateTime.Now;
+    
+        if (!_inputActive)
         {
-            Console.WriteLine($"  {entry.Key}: key={entry.Value.Key}, enabled={entry.Value.Enabled}, coordinate='{entry.Value.Coordinate}', threshold={entry.Value.Threshold}, sensitivity={entry.Value.Sensitivity}");
+            _inputActive = true;
+            Console.WriteLine("Input started - receiving facial data");
         }
-        */
-        // Skip processing if this is the first data point
+        
         if (_previousData == null)
         {
             Console.WriteLine("First data point - storing as baseline");
@@ -85,6 +89,7 @@ public class MovementManagerService
         {
             Console.WriteLine("Auto-calibrating after receiving enough data...");
             CalibrateNormalization(data);
+            //TODO make button to reset calibration
         }
         //Console.WriteLine($"Calibration status: {(_hasCalibrated ? "Calibrated" : "Not calibrated")}");
 
@@ -157,10 +162,22 @@ public class MovementManagerService
                 _movementStates[movementName] = false;
             }
         }
+        foreach (var entry in _settings)
+        {
+            string movementName = entry.Key;
+            MovementSetting setting = entry.Value;
+
+            // If movement is no longer active, release its key
+            if (!_movementStates.ContainsKey(movementName) || !_movementStates[movementName])
+            {
+                _inputService.ReleaseKey(setting.Key, movementName);
+            }
+        }
 
         // Save current data for next comparison
         _previousData = data;
     }
+    
     public void CalibrateNormalization(FacialTrackingData neutralData)
     {
         _normalizedOffsets.Clear();
@@ -206,11 +223,25 @@ public class MovementManagerService
             return 0.0;
         }
     }
+    
+    public void CheckInputTimeout()
+    {
+        if (_inputActive && DateTime.Now - _lastInputTime > _inputTimeout)
+        {
+            Console.WriteLine("Input stopped - no facial data received");
+            _inputActive = false;
+        }
+    }
     private void SimulateKeyPress(string keyName, string movementName)
     {
-        if (Enum.TryParse<Key>(keyName, out var key))
+        // Reset input timing
+        _lastInputTime = DateTime.Now;
+        if (_hasReportedStop)
         {
-            Console.WriteLine($"Pressing key: {key} | Movement: {movementName}");
+            Console.WriteLine("Input resumed - receiving facial data again");
+            _hasReportedStop = false;
         }
+        
+        _inputService.SimulateKeyDown(keyName, movementName);
     }
 }
