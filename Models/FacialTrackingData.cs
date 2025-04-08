@@ -70,38 +70,32 @@ public class FacialTrackingData
     
     
     //Disable roll or rotation based on users input as to not overlap inputs
-    public double Roll => SelectiveRoll();
+    public double Roll => CalculateHeadTiltAngle();
     public double HeadRotation => SelectiveHeadRotation();
     
     //head pitch calc
     public double HeadPitch => ((ForeheadZ + ChinZ) / 2) - ((rEyeCornerZ + lEyeCornerZ) / 2);  
     
-    //Disable head rotation based on amount of head roll
-    private double SelectiveRoll()
+    // calculate head tilt angle in degrees
+    public double CalculateHeadTiltAngle()
     {
-        double baseRoll = lEyeCornerY - rEyeCornerY;
-        double rotationMagnitude = Math.Abs(lEarZ - rEarZ);
-    
-        // Threshold approach - if rotation is significant, reduce or disable roll
-        if (rotationMagnitude > 0.6) // Strong rotation threshold
-            return 0; // Disable roll completely
-        else if (rotationMagnitude > 0.15) // Moderate rotation
-            return baseRoll * 0.5; // Reduce roll sensitivity
-    
-        return baseRoll; // Full roll sensitivity
+        // Calculate the difference in y-coordinates
+        double deltaY = lEyeCornerY - rEyeCornerY;
+        // Calculate the angle in radians
+        double angleInRadians = Math.Atan2(deltaY, 1); // Assuming a horizontal distance of 1 unit
+        // Convert the angle to degrees
+        double angleInDegrees = angleInRadians * (180.0 / Math.PI);
+        return angleInDegrees;
     }
-    //Disable roll based on amount of head rotation
-    private double SelectiveHeadRotation()
+    // calculate head rotation angle
+    public double SelectiveHeadRotation()
     {
-        double baseRotation = lEarZ - rEarZ;
-        double rollMagnitude = Math.Abs(lEyeCornerY - rEyeCornerY);
-    
-        // Threshold approach - if roll is significant, reduce or disable rotation
-        if (rollMagnitude > 0.6) // Strong roll threshold
-            return 0; // Disable rotation completely
-        else if (rollMagnitude > 0.1) // Moderate roll
-            return baseRotation * 0.5; // Reduce rotation sensitivity
-    
-        return baseRotation; // Full rotation sensitivity
+        // Calculate the difference in x-coordinates
+        double deltaX = lEarZ - rEarZ;
+        // Calculate the angle in radians
+        double angleInRadians = Math.Atan2(deltaX, 1); // Assuming a horizontal distance of 1 unit
+        // Convert the angle to degrees
+        double angleInDegrees = angleInRadians * (180.0 / Math.PI);
+        return angleInDegrees;
     }
 }

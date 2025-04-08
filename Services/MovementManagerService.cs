@@ -58,7 +58,8 @@ public class MovementManagerService
         // Debug - examine what's in the settings
         foreach (var entry in _settings)
         {
-            Console.WriteLine($"Default setting: {entry.Key}, coordinate={entry.Value.Coordinate}, enabled={entry.Value.Enabled}");
+            Console.WriteLine($"Default setting: {entry.Key}, coordinate={entry.Value.Coordinate}, enabled={entry.Value.Enabled}, sens={entry.Value.Sensitivity}, threshold={entry.Value
+                .Threshold}");
         }
 
         string defaultJson = JsonSerializer.Serialize(_settings, new JsonSerializerOptions { WriteIndented = true });
