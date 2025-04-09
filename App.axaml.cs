@@ -37,6 +37,8 @@ public partial class App : Application
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<PythonLauncherService>();
         services.AddSingleton<InputService>();
+        services.AddSingleton<SettingsManager>();
+        services.AddSingleton<Models.SettingsModel>();
 
 
         

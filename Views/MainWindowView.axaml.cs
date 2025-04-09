@@ -13,6 +13,10 @@ namespace Bachelor.Views
         private BasicCameraViewModel _cameraViewModel;
         private PopoutWindow _popoutWindow;
         private MediaPipeListener _mediaPipeListener;
+        private KeybindViewModel _keybindViewModel;
+        private ContentControl _keybindContainer;
+
+
 
         public MainWindowView()
         {
@@ -20,12 +24,14 @@ namespace Bachelor.Views
             DataContext = new MainWindowViewModel();
 
             _cameraContainer = this.FindControl<ContentControl>("CameraContainer");
+            _keybindContainer = this.FindControl<ContentControl>("KeybindContainer");
             this.Loaded += MainWindowView_Loaded;
         }
 
         private void MainWindowView_Loaded(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             InitializeCamera();
+            InitializeKeybindView();
         }
 
         private void InitializeCamera()
@@ -47,6 +53,28 @@ namespace Bachelor.Views
                 mainCameraView.PopButtonClicked += OnPopButtonClicked;
                 mainCameraView.SetPopButtonText("Pop Out");
                 _cameraContainer.Content = mainCameraView;
+            }
+        }
+        
+        private void InitializeKeybindView()
+        {
+            // Get the SettingsModel from services
+            Console.WriteLine($"KeybindContainer found: {_keybindContainer != null}");
+            var app = Application.Current as App;
+            var settingsModel = app?.Services?.GetService(typeof(Models.SettingsModel)) as Models.SettingsModel;
+            Console.WriteLine($"SettingsModel found: {settingsModel != null}");
+
+            if (settingsModel != null)
+            {
+                _keybindViewModel = new KeybindViewModel(settingsModel);
+                Console.WriteLine("Keybind view was initialized");
+
+                var keybindView = new KeybindView
+                {
+                    DataContext = _keybindViewModel
+                };
+
+                _keybindContainer.Content = keybindView;
             }
         }
 

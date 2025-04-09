@@ -3,16 +3,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:Bachelor.Views"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="600"
         x:Class="Bachelor.Views.MainWindowView"
         Title="Bachelor">
 
-    <Grid RowDefinitions="Auto,*">
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
-        </StackPanel>
+    <Grid ColumnDefinitions="*, Auto">
+        <ContentControl Grid.Column="0" x:Name="CameraContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
-        <Grid Grid.Row="1" Name="MainContentArea">
-            <ContentControl x:Name="CameraContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-        </Grid>
+        <ContentControl Grid.Column="1" x:Name="KeybindContainer" Width="900" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
     </Grid>
 </Window>
