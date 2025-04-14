@@ -10,7 +10,7 @@ public static class MovementSettingsHelper
        {
             ["HeadTiltLeft"] = new MovementManagerService.MovementSetting {
                 Key = "Q", 
-                Threshold = 0.2, 
+                Threshold = 10, 
                 Sensitivity = 0.5,
                 Coordinate = "Roll",
                 Direction = "Negative",
@@ -19,8 +19,8 @@ public static class MovementSettingsHelper
             },
             ["HeadTiltRight"] = new MovementManagerService.MovementSetting {
                 Key = "E", 
-                Threshold = 0.2, 
-                Sensitivity = 3.0,
+                Threshold = 10, 
+                Sensitivity = 0.5,
                 Coordinate = "Roll",
                 Direction = "Positive",
                 Enabled = true,
@@ -46,7 +46,7 @@ public static class MovementSettingsHelper
             },
             ["HeadLeft"] = new MovementManagerService.MovementSetting {
                 Key = "Left", 
-                Threshold = 0.15, 
+                Threshold = 20, 
                 Sensitivity = 1.0,
                 Coordinate = "HeadRotation",
                 Direction = "Negative",
@@ -55,7 +55,7 @@ public static class MovementSettingsHelper
             },
             ["HeadRight"] = new MovementManagerService.MovementSetting {
                 Key = "Right", 
-                Threshold = 0.15, 
+                Threshold = 20, 
                 Sensitivity = 1.0,
                 Coordinate = "HeadRotation",
                 Direction = "Positive",
