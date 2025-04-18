@@ -28,13 +28,16 @@ namespace Bachelor.Models
             _settings = _settingsManager.GetAllSettings();
         }
 
+        /*
         public void UpdateSetting(string movementName, MovementManagerService.MovementSetting setting)
         {
             _settingsManager.UpdateSetting(movementName, setting);
             // Refresh settings from manager
             Settings = _settingsManager.GetAllSettings();
         }
-
+        //isnt used atm
+        */ 
+        
         public void UpdateSettingProperty(string movementName, string propertyName, object value)
         {
             _settingsManager.UpdateSettingProperty(movementName, propertyName, value);

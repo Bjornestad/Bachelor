@@ -60,7 +60,8 @@ namespace Bachelor.Services
             }
             return null;
         }
-
+        
+        /*
         public void UpdateSetting(string movementName, MovementManagerService.MovementSetting updatedSetting)
         {
             if (_settings.ContainsKey(movementName))
@@ -69,7 +70,8 @@ namespace Bachelor.Services
                 SaveSettings();
             }
         }
-
+        */
+        
         public void UpdateSettingProperty(string movementName, string propertyName, object value)
         {
             if (!_settings.TryGetValue(movementName, out var setting))
