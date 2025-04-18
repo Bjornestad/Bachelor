@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Avalonia.Input;
+using Bachelor.ViewModels;
 using InputSimulatorStandard;
 using InputSimulatorStandard.Native;
 
@@ -12,7 +13,18 @@ public class InputService
 {
     private static readonly InputSimulator _simulator = new InputSimulator();
     private Dictionary<string, bool> _keysCurrentlyDown = new Dictionary<string, bool>();
+    private OutputViewModel _outputViewModel;
 
+    public InputService(OutputViewModel outputViewModel)
+    {
+        _outputViewModel = outputViewModel;
+    }
+    
+    public void SetOutputViewModel(OutputViewModel viewModel)
+    {
+        _outputViewModel = viewModel;
+    }
+    
     // macOS CoreGraphics P/Invoke declarations
     [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
     private static extern IntPtr CGEventCreateKeyboardEvent(IntPtr source, ushort keyCode, bool keyDown);
@@ -25,7 +37,6 @@ public class InputService
 
     // Constants for CGEventPost
     private const uint kCGHIDEventTap = 0;
-
     public void SimulateKeyDown(string keyName, string movementName)
     {
         if (Enum.TryParse<Key>(keyName, out var key))
@@ -35,7 +46,7 @@ public class InputService
             if (!_keysCurrentlyDown.ContainsKey(keyIdentifier) || !_keysCurrentlyDown[keyIdentifier])
             {
                 Console.WriteLine($"Pressing key: {keyName} | Movement: {movementName}");
-
+                _outputViewModel?.Log($"Pressing key: {keyName} | Movement: {movementName}");
                 if (OperatingSystem.IsWindows())
                 {
                     VirtualKeyCode vkCode = MapAvaloniaKeyToVirtualKey(key);
@@ -72,6 +83,7 @@ public class InputService
 
                 _keysCurrentlyDown[keyIdentifier] = false;
                 Console.WriteLine($"Releasing key: {keyName} | Movement: {movementName}");
+                _outputViewModel?.Log($"Releasing key: {keyName} | Movement: {movementName}");
             }
         }
     }

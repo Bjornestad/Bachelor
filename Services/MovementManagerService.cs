@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json;
 using Avalonia.Input;
 using Bachelor.Models;
+using Bachelor.ViewModels;
 
 namespace Bachelor.Services;
 
@@ -24,6 +25,7 @@ public class MovementManagerService
     private readonly TimeSpan _inputTimeout = TimeSpan.FromSeconds(1.5);
     private bool _hasReportedStop = false;
     private readonly InputService _inputService;
+    private readonly OutputViewModel _outputViewModel;
     
     public class MovementSetting
     {
@@ -37,9 +39,10 @@ public class MovementManagerService
 
     }
 
-    public MovementManagerService(InputService inputService)
+    public MovementManagerService(InputService inputService, OutputViewModel outputViewModel)
     {
         _inputService = inputService;
+        _outputViewModel = _outputViewModel;
 
         // Set up paths
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -76,11 +79,13 @@ public class MovementManagerService
         {
             _inputActive = true;
             Console.WriteLine("Input started - receiving facial data");
+            _outputViewModel?.Log("Input started - receiving facial data");
         }
         
         if (_previousData == null)
         {
             Console.WriteLine("First data point - storing as baseline");
+            _outputViewModel?.Log("First data point - storing as baseline");
             _previousData = data;
             return;
         }
@@ -230,6 +235,7 @@ public class MovementManagerService
         if (_inputActive && DateTime.Now - _lastInputTime > _inputTimeout)
         {
             Console.WriteLine("Input stopped - no facial data received");
+            _outputViewModel?.Log("Input stopped - no facial data received");
             _inputActive = false;
         }
     }
@@ -240,6 +246,7 @@ public class MovementManagerService
         if (_hasReportedStop)
         {
             Console.WriteLine("Input resumed - receiving facial data again");
+            _outputViewModel?.Log("Input resumed - receiving facial data again");
             _hasReportedStop = false;
         }
         

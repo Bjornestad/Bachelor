@@ -36,6 +36,7 @@ public partial class App : Application
         services.AddSingleton<MediaPipeListener>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<PythonLauncherService>();
+        services.AddSingleton<OutputViewModel>();
         services.AddSingleton<InputService>();
         services.AddSingleton<SettingsManager>();
         services.AddSingleton<Models.SettingsModel>();

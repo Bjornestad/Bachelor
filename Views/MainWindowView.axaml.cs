@@ -15,6 +15,8 @@ namespace Bachelor.Views
         private MediaPipeListener _mediaPipeListener;
         private KeybindViewModel _keybindViewModel;
         private ContentControl _keybindContainer;
+        private ContentControl _outputContainer;
+        private OutputViewModel _outputViewModel;
 
 
 
@@ -25,6 +27,7 @@ namespace Bachelor.Views
 
             _cameraContainer = this.FindControl<ContentControl>("CameraContainer");
             _keybindContainer = this.FindControl<ContentControl>("KeybindContainer");
+            _outputContainer = this.FindControl<ContentControl>("OutputContainer");
             this.Loaded += MainWindowView_Loaded;
         }
 
@@ -32,6 +35,7 @@ namespace Bachelor.Views
         {
             InitializeCamera();
             InitializeKeybindView();
+            InitializeOutputView();
         }
 
         private void InitializeCamera()
@@ -75,6 +79,24 @@ namespace Bachelor.Views
                 };
 
                 _keybindContainer.Content = keybindView;
+            }
+        }
+        
+        private void InitializeOutputView()
+        {
+            // Get the OutputViewModel from services
+            Console.WriteLine($"OutputContainer found: {_outputContainer != null}");
+            var app = Application.Current as App;
+            _outputViewModel = app?.Services?.GetService(typeof(OutputViewModel)) as OutputViewModel;
+
+            if (_outputViewModel != null)
+            {
+                var outputView = new OutputView
+                {
+                    DataContext = _outputViewModel
+                };
+
+                _outputContainer.Content = outputView;
             }
         }
 

@@ -7,9 +7,14 @@
         x:Class="Bachelor.Views.MainWindowView"
         Title="Bachelor">
 
-    <Grid ColumnDefinitions="*, Auto">
-        <ContentControl Grid.Column="0" x:Name="CameraContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-
-        <ContentControl Grid.Column="1" x:Name="KeybindContainer" Width="900" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-    </Grid>
+    <DockPanel LastChildFill="True">
+        <!-- Right side panel (KeybindContainer) - always spans full height -->
+        <ContentControl DockPanel.Dock="Right" x:Name="KeybindContainer" Width="900" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        
+        <!-- Left side panel with camera and output -->
+        <Grid RowDefinitions="*, Auto">
+            <ContentControl Grid.Row="0" x:Name="CameraContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <ContentControl Grid.Row="1" x:Name="OutputContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="280"/>
+        </Grid>
+    </DockPanel>
 </Window>

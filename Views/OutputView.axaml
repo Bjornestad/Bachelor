@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Bachelor.ViewModels"
+        mc:Ignorable="d" 
+        d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Bachelor.Views.OutputView"
+        x:DataType="vm:OutputViewModel">
+    
+    <Grid RowDefinitions="Auto,*">
+        <!-- Header/Title -->
+        <TextBlock Grid.Row="0" Text="Input Log" FontWeight="Bold" Margin="10" />
+        
+        <!-- Log entries area with scrolling -->
+        <ScrollViewer Grid.Row="1" Name="LogScrollViewer" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding  LogEntries}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="Transparent" 
+                                BorderBrush="#FF888888" 
+                                BorderThickness="1"
+                                CornerRadius="3"
+                                Margin="4,2">
+                            <TextBlock Text="{Binding}" 
+                                       Padding="8,4" 
+                                       TextWrapping="Wrap"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
