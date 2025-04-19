@@ -10,7 +10,7 @@ namespace Bachelor.Services;
 
 public class MovementManagerService
 {
-    private readonly Dictionary<string, MovementSetting> _settings;
+    private Dictionary<string, MovementSetting> _settings;
     private FacialTrackingData _previousData;
     private Dictionary<string, bool> _movementStates = new Dictionary<string, bool>();
     private Dictionary<string, double> _normalizedOffsets = new Dictionary<string, double>();
@@ -26,6 +26,7 @@ public class MovementManagerService
     private bool _hasReportedStop = false;
     private readonly InputService _inputService;
     private readonly OutputViewModel _outputViewModel;
+    private SettingsManager _settingsManager;
     
     public class MovementSetting
     {
@@ -39,35 +40,26 @@ public class MovementManagerService
 
     }
 
-    public MovementManagerService(InputService inputService, OutputViewModel outputViewModel)
+    public MovementManagerService(InputService inputService, OutputViewModel outputViewModel, SettingsManager settingsManager)
     {
         _inputService = inputService;
-        _outputViewModel = _outputViewModel;
-
-        // Set up paths
-        string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        string settingsDirectory = Path.Combine(baseDirectory, "Assets", "DefaultSettings");
-        string settingsPath = Path.Combine(settingsDirectory, "DefaultSetting.json");
-
-        // Create directory if it doesn't exist
-        if (!Directory.Exists(settingsDirectory))
-        {
-            Directory.CreateDirectory(settingsDirectory);
-        }
-
-        // Force recreation of settings file with correct values
-        _settings = MovementSettingsHelper.CreateDefaultSettings();
-
-        // Debug - examine what's in the settings
+        _outputViewModel = outputViewModel;
+        _settingsManager = settingsManager;
+        
+        // Load settings from the SettingsManager
+        _settings = _settingsManager.GetAllSettings();
+        
+        //To see if settings load correctly
         foreach (var entry in _settings)
         {
-            Console.WriteLine($"Default setting: {entry.Key}, coordinate={entry.Value.Coordinate}, enabled={entry.Value.Enabled}, sens={entry.Value.Sensitivity}, threshold={entry.Value
-                .Threshold}");
+            Console.WriteLine($"Loaded setting: {entry.Key}, coordinate={entry.Value.Coordinate}, enabled={entry.Value.Enabled}, sens={entry.Value.Sensitivity}, threshold={entry.Value.Threshold}");
         }
-
-        string defaultJson = JsonSerializer.Serialize(_settings, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(settingsPath, defaultJson);
-        Console.WriteLine($"Created settings file at: {settingsPath}");
+    }
+    
+    public void RefreshSettings()
+    {
+        _settings = _settingsManager.GetAllSettings();
+        Console.WriteLine("Settings refreshed from SettingsManager");
     }
     
     public void ProcessFacialData(FacialTrackingData data)

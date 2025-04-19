@@ -46,6 +46,16 @@ public partial class App : Application
         // Build service provider
         Services = services.BuildServiceProvider();
 
+        
+        var settingsModel = Services.GetRequiredService<Models.SettingsModel>();
+        var movementManagerService = Services.GetRequiredService<MovementManagerService>();
+        settingsModel.PropertyChanged += (sender, args) => {
+            if (args.PropertyName == nameof(Models.SettingsModel.Settings))
+            {
+                movementManagerService.RefreshSettings();
+            }
+        };
+        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Get MainWindowViewModel from DI container
