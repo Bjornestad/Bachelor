@@ -29,8 +29,8 @@ namespace Bachelor.Services
             }
             else if (OperatingSystem.IsMacOS())
             {
-                string homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                appFolder = Path.Combine(homeDir, "Library", "Application Support", "HeadPut");
+                string homeDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                appFolder = Path.Combine(homeDir, "HeadPut");
             }
             else // Linux and others
             {
