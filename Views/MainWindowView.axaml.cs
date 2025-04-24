@@ -97,6 +97,30 @@ namespace Bachelor.Views
         {
             AvaloniaXamlLoader.Load(this);
         }
+        
+        private void CameraSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.SelectedIndex >= 0)
+            {
+                ChangeCamera(comboBox.SelectedIndex);
+            }
+        }
+        
+        public void ChangeCamera(int cameraId)
+        {
+            var app = Application.Current as App;
+            if (app?.Services != null)
+            {
+                var settingsModel = app.Services.GetService(typeof(Models.SettingsModel)) as Models.SettingsModel;
+                var pythonLauncher = app.Services.GetService(typeof(PythonLauncherService)) as PythonLauncherService;
+            
+                if (settingsModel != null && pythonLauncher != null)
+                {
+                    settingsModel.CameraId = cameraId;
+                    pythonLauncher.RestartWithCamera(cameraId);
+                }
+            }
+        }
 
         private void OnPopButtonClicked(object sender, EventArgs e)
         {

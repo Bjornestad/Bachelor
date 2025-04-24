@@ -9,6 +9,8 @@ namespace Bachelor.Models
     {
         private readonly SettingsManager _settingsManager;
         private Dictionary<string, MovementManagerService.MovementSetting> _settings;
+        public int CameraId { get; set; } = 0; 
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

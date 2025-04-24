@@ -15,6 +15,11 @@
             </Grid.ColumnDefinitions>
             <ContentControl Grid.Column="0" x:Name="KeybindContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
             <ContentControl Grid.Column="1" x:Name="AppSettingsContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ComboBox x:Name="CameraSelector" SelectedIndex="0" SelectionChanged="CameraSelector_SelectionChanged">
+                <ComboBoxItem>Camera 0</ComboBoxItem>
+                <ComboBoxItem>Camera 1</ComboBoxItem>
+                <ComboBoxItem>Camera 2</ComboBoxItem>
+            </ComboBox>
         </Grid>
     
         <Grid>

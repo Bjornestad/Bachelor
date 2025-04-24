@@ -1,3 +1,4 @@
+import argparse
 import sys
 
 import cv2
@@ -8,7 +9,33 @@ import time
 import threading
 from queue import Queue, Empty
 
-# Initialize MediaPipe with lower complexity settings
+
+def list_available_cameras():
+    available_cameras = {}
+
+    for i in range(10):
+        try:
+            if sys.platform == "darwin":
+                cap = cv2.VideoCapture(i)
+            else:
+                cap = cv2.VideoCapture(i, cv2.CAP_DSHOW)
+
+            if cap.isOpened():
+                ret, _ = cap.read()
+                if ret:
+                    camera_name = f"Camera {i}"
+                    available_cameras[i] = camera_name
+                cap.release()
+        except Exception as e:
+            print(f"Error checking camera {i}: {e}")
+
+    return available_cameras
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Face tracking script')
+    parser.add_argument('--camera', type=int, help='Camera index to use')
+    return parser.parse_args()
+
 debug = False
 mp_drawing = mp.solutions.drawing_utils
 mp_face_mesh = mp.solutions.face_mesh
@@ -23,13 +50,48 @@ face_mesh = mp_face_mesh.FaceMesh(
 server_address = ("127.0.0.1", 5005)
 data_queue = Queue(maxsize=2)  # Queue to pass data to network thread
 
-print("OS PLATFORM: ",sys.platform)
-if sys.platform=="darwin":
-    cap = cv2.VideoCapture(0)
-else:
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+# Parse command line arguments
+args = parse_arguments()
+
+# List all available cameras and log them
+available_cameras = list_available_cameras()
+print(f"DEBUG: Found cameras: {available_cameras}")
+
+# Validate camera selection
+if args.camera is None:
+    print("Error: Camera ID required")
+    sys.exit(1)
+
+selected_camera = args.camera
+print(f"Attempting to use camera ID: {selected_camera}")
+
+# Check if selected camera is available
+if selected_camera not in available_cameras:
+    print(f"WARNING: Camera {selected_camera} not in available list {available_cameras}")
+
+# Try to open the camera with more error handling
+try:
+    if sys.platform == "darwin":
+        cap = cv2.VideoCapture(selected_camera)
+    else:
+        cap = cv2.VideoCapture(selected_camera, cv2.CAP_DSHOW)
+
+    # Verify camera opened successfully
+    if not cap.isOpened():
+        print(f"ERROR: Failed to open camera {selected_camera}")
+        sys.exit(1)
+
+    ret, test_frame = cap.read()
+    if not ret:
+        print(f"ERROR: Camera {selected_camera} opened but couldn't read frame")
+        cap.release()
+        sys.exit(1)
+
+    print(f"SUCCESS: Camera {selected_camera} opened successfully")
+except Exception as e:
+    print(f"ERROR: Exception opening camera {selected_camera}: {e}")
+    sys.exit(1)
+    
 
 # Network thread function
 def network_thread():

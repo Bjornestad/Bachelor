@@ -11,6 +11,7 @@ using Avalonia.ReactiveUI;
 using Microsoft.Extensions.DependencyInjection;
 using Bachelor.Services;
 using System;
+using Bachelor.Models;
 
 namespace Bachelor;
 
@@ -39,7 +40,7 @@ public partial class App : Application
         services.AddSingleton<OutputViewModel>();
         services.AddSingleton<InputService>();
         services.AddSingleton<SettingsManager>();
-        services.AddSingleton<Models.SettingsModel>();
+        services.AddSingleton<SettingsModel>();
         services.AddSingleton<KeybindViewModel>();
 
         
@@ -70,10 +71,9 @@ public partial class App : Application
             var listener = Services.GetRequiredService<MediaPipeListener>();
             listener.Start();
             
-            // Check that this initialization is happening
             
             var pythonLauncher = Services.GetRequiredService<PythonLauncherService>();
-            pythonLauncher.StartPythonScript();
+            pythonLauncher.StartWithCamera(settingsModel.CameraId);
         }
 
         base.OnFrameworkInitializationCompleted();
