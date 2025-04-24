@@ -62,29 +62,22 @@ namespace Bachelor.Views
         
         private void InitializeKeybindView()
         {
-            // Get the SettingsModel from services
             Console.WriteLine($"KeybindContainer found: {_keybindContainer != null}");
             var app = Application.Current as App;
-            var settingsModel = app?.Services?.GetService(typeof(Models.SettingsModel)) as Models.SettingsModel;
-            Console.WriteLine($"SettingsModel found: {settingsModel != null}");
-
-            if (settingsModel != null)
+            _keybindViewModel = app?.Services?.GetService(typeof(KeybindViewModel)) as KeybindViewModel;
+    
+            if (_keybindViewModel != null)
             {
-                _keybindViewModel = new KeybindViewModel(settingsModel);
-                Console.WriteLine("Keybind view was initialized");
-
                 var keybindView = new KeybindView
                 {
                     DataContext = _keybindViewModel
                 };
-
                 _keybindContainer.Content = keybindView;
             }
         }
         
         private void InitializeOutputView()
         {
-            // Get the OutputViewModel from services
             Console.WriteLine($"OutputContainer found: {_outputContainer != null}");
             var app = Application.Current as App;
             _outputViewModel = app?.Services?.GetService(typeof(OutputViewModel)) as OutputViewModel;
@@ -148,14 +141,17 @@ namespace Bachelor.Views
             _cameraViewModel = cameraView?.DataContext as BasicCameraViewModel;
             _mediaPipeListener = listener;
         }
-
+        
+        
         protected override void OnClosing(WindowClosingEventArgs e)
         {
+            
             var app = Application.Current as App;
             if (app?.Services != null)
             {
                 var pythonLauncher = app.Services.GetService(typeof(PythonLauncherService)) as PythonLauncherService;
                 pythonLauncher?.StopPythonScript();
+                
             }
 
             _popoutWindow?.Close();

@@ -40,7 +40,7 @@ public partial class App : Application
         services.AddSingleton<InputService>();
         services.AddSingleton<SettingsManager>();
         services.AddSingleton<Models.SettingsModel>();
-
+        services.AddSingleton<KeybindViewModel>();
 
         
         // Build service provider

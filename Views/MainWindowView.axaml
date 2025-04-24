@@ -8,13 +8,22 @@
         Title="Bachelor">
 
     <DockPanel LastChildFill="True">
-        <!-- Right side panel (KeybindContainer) - always spans full height -->
-        <ContentControl DockPanel.Dock="Right" x:Name="KeybindContainer" Width="900" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-        
-        <!-- Left side panel with camera and output -->
-        <Grid RowDefinitions="*, Auto">
+        <Grid Width="1000" DockPanel.Dock="Right">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="8*" />
+                <ColumnDefinition Width="5*" />
+            </Grid.ColumnDefinitions>
+            <ContentControl Grid.Column="0" x:Name="KeybindContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ContentControl Grid.Column="1" x:Name="AppSettingsContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        </Grid>
+    
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="280" />
+            </Grid.RowDefinitions>
             <ContentControl Grid.Row="0" x:Name="CameraContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-            <ContentControl Grid.Row="1" x:Name="OutputContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="280"/>
+            <ContentControl Grid.Row="1" x:Name="OutputContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </Grid>
     </DockPanel>
 </Window>
