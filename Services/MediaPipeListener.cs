@@ -18,6 +18,8 @@ public class MediaPipeListener
     private TcpListener _server;
     private bool _isRunning;
     private System.Timers.Timer _checkInputTimer;
+    public bool IsPaused { get; set; } = false;
+
 
     // Event for video frame updates
     public event EventHandler<Bitmap> VideoFrameReceived;
@@ -111,8 +113,11 @@ public class MediaPipeListener
                                 Console.WriteLine($"{data.HeadPitch:F3} : Head pitch");
                                 lastPrintTime = DateTime.Now;
                             }
-                            
-                            _movementManager.ProcessFacialData(data);
+                            //Dont prcoss data if user pauses
+                            if (!IsPaused)
+                            {
+                                _movementManager.ProcessFacialData(data);
+                            }
                         }
                         else if (header.StartsWith("IMAGE:"))
                         {
@@ -147,7 +152,11 @@ public class MediaPipeListener
                             try
                             {
                                 var data = JsonSerializer.Deserialize<FacialTrackingData>(header);
-                                _movementManager.ProcessFacialData(data);
+                                
+                                if (!IsPaused)
+                                {
+                                    _movementManager.ProcessFacialData(data);
+                                }
                             }
                             catch (JsonException)
                             {
