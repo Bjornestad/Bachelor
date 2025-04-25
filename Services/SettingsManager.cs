@@ -103,6 +103,24 @@ namespace Bachelor.Services
                 {
                     string json = File.ReadAllText(_settingsFilePath);
                     _settings = JsonSerializer.Deserialize<Dictionary<string, MovementManagerService.MovementSetting>>(json);
+            
+                    var defaultSettings = MovementSettingsHelper.CreateDefaultSettings();
+                    bool hasNewSettings = false;
+            
+                    foreach (var defaultSetting in defaultSettings)
+                    {
+                        if (!_settings.ContainsKey(defaultSetting.Key))
+                        {
+                            _settings[defaultSetting.Key] = defaultSetting.Value;
+                            hasNewSettings = true;
+                        }
+                    }
+            
+                    // Save if new settings were added
+                    if (hasNewSettings)
+                    {
+                        SaveSettings();
+                    }
                 }
                 else
                 {
