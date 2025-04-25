@@ -11,10 +11,8 @@
         <Grid Width="1000" DockPanel.Dock="Right">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="8*" />
-                <ColumnDefinition Width="5*" />
             </Grid.ColumnDefinitions>
             <ContentControl Grid.Column="0" x:Name="KeybindContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-            <ContentControl Grid.Column="1" x:Name="AppSettingsContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         </Grid>
     
         <Grid>

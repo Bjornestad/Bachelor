@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Avalonia.Input;
 using Bachelor.Models;
 using Bachelor.ViewModels;
@@ -231,6 +232,7 @@ public class MovementManagerService
             _inputActive = false;
         }
     }
+
     private void SimulateKeyPress(string keyName, string movementName)
     {
         // Reset input timing
@@ -241,7 +243,20 @@ public class MovementManagerService
             _outputViewModel?.Log("Input resumed - receiving facial data again");
             _hasReportedStop = false;
         }
-        
-        _inputService.SimulateKeyDown(keyName, movementName);
+
+        if (_settings.TryGetValue(movementName, out var setting) && !setting.Continuous)
+        {
+            _inputService.SimulateKeyDown(keyName, movementName);
+
+            Task.Run(async () =>
+            {
+                await Task.Delay(50); // Short delay to ensure key press registers
+                _inputService.ReleaseKey(keyName, movementName);
+            });
+        }
+        else
+        {
+            _inputService.SimulateKeyDown(keyName, movementName);
+        }
     }
 }
