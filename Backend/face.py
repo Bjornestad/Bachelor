@@ -106,26 +106,24 @@ while cap.isOpened() and running:
             if eye_distance < 0.001:
                 eye_distance = 0.001
 
-            # Create normalized data 
+            # Create normalized data, using "#" to show which is actually used xd
             processed_data = {
-                "rEyeCornerY": round(landmarks.landmark[33].y / eye_distance, 3),
-                "lEyeCornerY": round(landmarks.landmark[263].y / eye_distance, 3),
-                "rEyeCornerZ": round(landmarks.landmark[33].z / eye_distance, 3),
-                "lEyeCornerZ": round(landmarks.landmark[263].z / eye_distance, 3),
-                "lEyebrowY": round(landmarks.landmark[296].y / eye_distance, 3),
-                "lEyesocketY": round(landmarks.landmark[450].y / eye_distance, 3),
-                "rEyebrowY": round(landmarks.landmark[66].y / eye_distance, 3),
-                "rEyesocketY": round(landmarks.landmark[230].y / eye_distance, 3),
-                "MouthBotY": round(landmarks.landmark[17].y / eye_distance, 3),
-                "MouthBotZ": round(landmarks.landmark[17].z / eye_distance, 3),
-                "MouthTopY": round(landmarks.landmark[0].y / eye_distance, 3),
-                "MouthTopZ": round(landmarks.landmark[0].z / eye_distance, 3),
-                "MouthRX": round(landmarks.landmark[61].x / eye_distance, 3),
-                "MouthLX": round(landmarks.landmark[291].x / eye_distance, 3),
-                "rEarZ": round(landmarks.landmark[93].z / eye_distance, 3),
-                "lEarZ": round(landmarks.landmark[323].z / eye_distance, 3),
-                "Forehead>Y": round(landmarks.landmark[10].y / eye_distance, 3),
-                "ChinZ": round(landmarks.landmark[152].z / eye_distance, 3),
+                "rEyeCornerY": round(landmarks.landmark[33].y / eye_distance, 3), #
+                "lEyeCornerY": round(landmarks.landmark[263].y / eye_distance, 3), #
+                "rEyeCornerZ": round(landmarks.landmark[33].z / eye_distance, 3), #
+                "lEyeCornerZ": round(landmarks.landmark[263].z / eye_distance, 3), #
+                "lEyebrowY": round(landmarks.landmark[296].y / eye_distance, 3), #
+                "lEyesocketY": round(landmarks.landmark[450].y / eye_distance, 3), #
+                "rEyebrowY": round(landmarks.landmark[66].y / eye_distance, 3), #
+                "rEyesocketY": round(landmarks.landmark[230].y / eye_distance, 3), #
+                "MouthBotY": round(landmarks.landmark[17].y / eye_distance, 3), #
+                "MouthTopY": round(landmarks.landmark[0].y / eye_distance, 3), #
+                "MouthRX": round(landmarks.landmark[61].x / eye_distance, 3), #
+                "MouthLX": round(landmarks.landmark[291].x / eye_distance, 3), #
+                "rEarZ": round(landmarks.landmark[93].z / eye_distance, 3), #
+                "lEarZ": round(landmarks.landmark[323].z / eye_distance, 3), #
+                "ForeheadZ": round(landmarks.landmark[10].z / eye_distance, 3), #
+                "ChinZ": round(landmarks.landmark[152].z / eye_distance, 3) #
             }
 
             # Put data in queue for network thread 
