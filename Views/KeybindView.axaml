@@ -2,7 +2,72 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:viewModels="clr-namespace:Bachelor.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewModels:KeybindViewModel, IsDesignTimeCreatable=False}"
+             x:DataType="viewModels:KeybindViewModel"
              x:Class="Bachelor.Views.KeybindView">
-    Welcome to Avalonia!
+
+    <DockPanel>
+        <TextBlock Text="Movement Controls" FontSize="20" FontWeight="Bold" Margin="6,0,0,10" DockPanel.Dock="Top"/>
+        <Button Content="Reset to Defaults"
+                Command="{Binding ResetToDefaultsCommand}"
+                HorizontalAlignment="Center"
+                Margin="0,10" 
+                DockPanel.Dock="Bottom"/>
+        
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding MovementSettings}" x:CompileBindings="False">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="#ff8961cc" BorderThickness="1" Margin="5" Padding="10" CornerRadius="1" 
+                                MinWidth="280" MaxWidth="400">
+                            <StackPanel>
+                                <TextBlock Text="{Binding MovementName}" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,5">
+                                    <TextBlock Text="Key:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBox Text="{Binding Key}" Grid.Row="0" Grid.Column="1" Margin="0,2"/>
+
+                                    <TextBlock Text="Threshold:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Value="{Binding Threshold}"
+                                                  Minimum="0.0"
+                                                  Maximum="100.0"
+                                                  Increment="0.05"
+                                                  Grid.Row="1"
+                                                  Grid.Column="1"
+                                                  Margin="0,2"/>
+
+                                    <TextBlock Text="Sensitivity:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Value="{Binding Sensitivity}"
+                                                  Minimum="0.1"
+                                                  Maximum="10.0"
+                                                  Increment="0.1"
+                                                  Grid.Row="2"
+                                                  Grid.Column="1"
+                                                  Margin="0,2"/>
+
+                                    <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*,Auto,*">
+                                        <TextBlock Text="Enabled:" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <CheckBox IsChecked="{Binding Enabled}"
+                                                 Grid.Column="1"
+                                                 Margin="0,2"/>
+
+                                        <TextBlock Text="Continuous:" Grid.Column="2" VerticalAlignment="Center" Margin="10,0,10,0"/>
+                                        <CheckBox IsChecked="{Binding Continuous}"
+                                                 Grid.Column="3"
+                                                 Margin="0,2"/>
+                                    </Grid>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>

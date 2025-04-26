@@ -36,11 +36,26 @@ public partial class App : Application
         services.AddSingleton<MediaPipeListener>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<PythonLauncherService>();
+        services.AddSingleton<OutputViewModel>();
+        services.AddSingleton<InputService>();
+        services.AddSingleton<SettingsManager>();
+        services.AddSingleton<Models.SettingsModel>();
+        services.AddSingleton<KeybindViewModel>();
 
         
         // Build service provider
         Services = services.BuildServiceProvider();
 
+        
+        var settingsModel = Services.GetRequiredService<Models.SettingsModel>();
+        var movementManagerService = Services.GetRequiredService<MovementManagerService>();
+        settingsModel.PropertyChanged += (sender, args) => {
+            if (args.PropertyName == nameof(Models.SettingsModel.Settings))
+            {
+                movementManagerService.RefreshSettings();
+            }
+        };
+        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Get MainWindowViewModel from DI container

@@ -1,79 +1,56 @@
 ﻿{
-  "HeadLeft": {
-    "key": "A",
-    "threshold": 0.5,
-    "sensitivity": 5,
-    "coordinate": "X",
-    "direction": "Negative"
-  },
-  "HeadRight": {
-    "key": "D",
-    "threshold": 0.5,
-    "sensitivity": 5,
-    "coordinate": "X",
-    "direction": "Negative"
-  },
-  "HeadUp": {
-    "key": "W",
-    "threshold": 0.5,
-    "sensitivity": 5,
-    "coordinate": "Y",
-    "direction": "Negative"
-  },
-  "HeadDown": {
-    "key": "S",
-    "threshold": 0.5,
-    "sensitivity": 5,
-    "coordinate": "Y",
-    "direction": "Positive"
-  },
   "HeadTiltLeft": {
-    "key": "Q",
-    "threshold": 0.5,
-    "sensitivity": 5,
-    "coordinate": "Roll",
-    "direction": "Negative"
+    "Key": "Q",
+    "Threshold": 0.2,
+    "Sensitivity": 0.5,
+    "Coordinate": "Roll",
+    "Direction": "Negative",
+    "Enabled": true,
+    "Continuous": true
   },
   "HeadTiltRight": {
-    "key": "E",
-    "threshold": 0.5,
-    "sensitivity": 5,
-    "coordinate": "Roll",
-    "direction": "Positive"
-  },
-  "LeftEyebrowRaise": {
-    "key": "Up",
-    "threshold": 1,
-    "sensitivity": 5,
-    "coordinate": "LeftEyebrow",
-    "direction": "Positive"
-  },
-  "RightEyebrowRaise": {
-    "key": "E",
-    "threshold": 0.5,
-    "sensitivity": 5,
-    "coordinate": "RightEyebrow",
-    "direction": "Positive"
-  },
-  "Blink": {
-    "key": "Space",
-    "threshold": 0.5,
-    "sensitivity": 5,
-    "coordinate": "EyesClosed",
-    "direction": "Positive"
+    "Key": "E",
+    "Threshold": 0.2,
+    "Sensitivity": 3.0,
+    "Coordinate": "Roll",
+    "Direction": "Positive",
+    "Enabled": true,
+    "Continuous": true
   },
   "MouthOpen": {
-    "key": "Space",
-    "threshold": 0.5,
-    "sensitivity": 5,
-    "coordinate": "MouthHeight",
-    "direction": "Positive"
+    "Key": "Space",
+    "Threshold": 0.1,
+    "Sensitivity": 0.5,
+    "Coordinate": "MouthHeight",
+    "Direction": "Positive",
+    "Enabled": true,
+    "Continuous": false
   },
   "MouthWide": {
-    "key": "Enter",
-    "threshold": 0.5,
-    "sensitivity": 5,
-    "coordinate": "MouthWidth",
-    "direction": "Positive"
+    "Key": "Enter",
+    "Threshold": 0.3,
+    "Sensitivity": 2.0,
+    "Coordinate": "MouthWidth",
+    "Direction": "Positive",
+    "Enabled": true,
+    "Continuous": false
+  },
+  "HeadLeft": {
+    "Key": "Left",
+    "Threshold": 0.15,
+    "Sensitivity": 1.0,
+    "Coordinate": "HeadRotation",
+    "Direction": "Negative",
+    "Enabled": true,
+    "Continuous": true
+  },
+  "HeadRight": {
+    "Key": "Right",
+    "Threshold": 0.15,
+    "Sensitivity": 1.0,
+    "Coordinate": "HeadRotation",
+    "Direction": "Positive",
+    "Enabled": true,
+    "Continuous": true
   }
 }

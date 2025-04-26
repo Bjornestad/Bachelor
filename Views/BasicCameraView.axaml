@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Bachelor.Views.BasicCameraView">
-    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Grid>
         <!-- Fixed size container that keeps button position consistent -->
         <Border Width="640" Height="480">
             <Grid>
@@ -12,13 +12,34 @@
                 <TextBlock Text="No camera feed available" 
                            IsVisible="{Binding #CameraImage.Source, Converter={x:Static ObjectConverters.IsNull}}"
                            HorizontalAlignment="Center" 
-                           VerticalAlignment="Center" />
-                <Button x:Name="PopButton" 
-                        Content="Pop Out"
-                        HorizontalAlignment="Right" 
-                        VerticalAlignment="Top" 
-                        Margin="10"/>
+                           VerticalAlignment="Center"
+                           Margin="10"/>
+                <Button Name="PopButton"/>
+                <ToggleButton x:Name="PauseButton" 
+                              Content="Pause" 
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Bottom"
+                              Margin="0,0,10,10"/>
             </Grid>
         </Border>
     </Grid>
+    <UserControl.Styles>
+        <Style Selector="Grid">
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+        </Style>
+        <Style Selector="Image.CameraImage">
+        </Style>
+        <Style Selector="Button#PopButton">
+            <Setter Property="Content" Value="Pop Out"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+    </UserControl.Styles>
 </UserControl>

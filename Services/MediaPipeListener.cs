@@ -13,10 +13,13 @@ namespace Bachelor.Services;
 
 public class MediaPipeListener
 {
-    private bool debug = true;
+    private bool debug = false;
     private readonly MovementManagerService _movementManager;
     private TcpListener _server;
     private bool _isRunning;
+    private System.Timers.Timer _checkInputTimer;
+    public bool IsPaused { get; set; } = false;
+
 
     // Event for video frame updates
     public event EventHandler<Bitmap> VideoFrameReceived;
@@ -24,6 +27,11 @@ public class MediaPipeListener
     public MediaPipeListener(MovementManagerService movementManager)
     {
         _movementManager = movementManager;
+        
+        // Create a timer to check for input timeout
+        _checkInputTimer = new System.Timers.Timer(500); // Check every 500ms
+        _checkInputTimer.Elapsed += (s, e) => _movementManager.CheckInputTimeout();
+        _checkInputTimer.AutoReset = true;
     }
 
     public void Start()
@@ -31,6 +39,7 @@ public class MediaPipeListener
         _server = new TcpListener(IPAddress.Parse("127.0.0.1"), 5005);
         _server.Start();
         _isRunning = true;
+        _checkInputTimer.Start();
 
         Task.Run(() => ListenForData());
         Console.WriteLine("MediaPipeListener started and listening on 127.0.0.1:5005");
@@ -95,13 +104,20 @@ public class MediaPipeListener
 
                             if (debug && DateTime.Now - lastPrintTime > printInterval)
                             {
-                                Console.WriteLine($"Parsed data: X={data.X:F3}, Y={data.Y:F3}, Z={data.Z:F3}, Roll={data.Roll:F3}, " +
-                                                  $"LeftEyebrowHeight={data.LeftEyebrowHeight:F3}, RightEyebrowHeight={data.RightEyebrowHeight:F3}, " +
-                                                  $"MouthHeight={data.MouthHeight:F3}, MouthWidth={data.MouthWidth:F3}");
+                                Console.WriteLine($"{data.MouthBotY - data.MouthTopY:F3} : Mouth openness");
+                                Console.WriteLine($"{data.MouthLX - data.MouthRX:F3} : Mouth width");
+                                Console.WriteLine($"{data.rEyebrowY - data.rEyesocketY:F3} : EyebrowR height");
+                                Console.WriteLine($"{data.lEyebrowY - data.lEyesocketY:F3} : EyebrowL height");
+                                Console.WriteLine($"{data.Roll:F3} : Head tilt");
+                                Console.WriteLine($"{data.HeadRotation:F3} : Head rotation");
+                                Console.WriteLine($"{data.HeadPitch:F3} : Head pitch");
                                 lastPrintTime = DateTime.Now;
                             }
-
-                            _movementManager.ProcessFacialData(data);
+                            //Dont prcoss data if user pauses
+                            if (!IsPaused)
+                            {
+                                _movementManager.ProcessFacialData(data);
+                            }
                         }
                         else if (header.StartsWith("IMAGE:"))
                         {
@@ -136,7 +152,11 @@ public class MediaPipeListener
                             try
                             {
                                 var data = JsonSerializer.Deserialize<FacialTrackingData>(header);
-                                _movementManager.ProcessFacialData(data);
+                                
+                                if (!IsPaused)
+                                {
+                                    _movementManager.ProcessFacialData(data);
+                                }
                             }
                             catch (JsonException)
                             {
@@ -152,7 +172,6 @@ public class MediaPipeListener
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Error processing data: {ex.Message}");
-                        // Continue to next message
                     }
                 }
             }
@@ -196,6 +215,7 @@ public class MediaPipeListener
     {
         _isRunning = false;
         _server?.Stop();
+        _checkInputTimer.Stop();
         Console.WriteLine("MediaPipeListener stopped");
     }
 }

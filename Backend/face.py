@@ -1,3 +1,5 @@
+import sys
+
 import cv2
 import mediapipe as mp
 import socket
@@ -7,6 +9,8 @@ import threading
 from queue import Queue, Empty
 
 # Initialize MediaPipe with lower complexity settings
+debug = False
+mp_drawing = mp.solutions.drawing_utils
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(
     max_num_faces=1,  # Only track one face
@@ -15,25 +19,17 @@ face_mesh = mp_face_mesh.FaceMesh(
     min_tracking_confidence=0.5
 )
 
-debug = False
-
 # Socket configuration
 server_address = ("127.0.0.1", 5005)
 data_queue = Queue(maxsize=2)  # Queue to pass data to network thread
 
-# Reduce camera resolution for faster processing
-cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)
-#cap = cv2.VideoCapture(0) my webcam needs DSHOW for some reason, todo figure out why
-#will need to setup a detection for this
+print("OS PLATFORM: ",sys.platform)
+if sys.platform=="darwin":
+    cap = cv2.VideoCapture(0)
+else:
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
-key_landmarks = [0,17,159,145,386,374,4,2,5,6,152,10]  
-#0 top lip, 17 bottom lip, 
-#159 top left eye, 145 top right eye, 386 bottom left eye, 374 bottom right eye
-#4 nose tip, 2 nose bottom, 5 nose left, 6 nose right
-#152 bottom chin, 10 top head
-
 
 # Network thread function
 def network_thread():
@@ -91,23 +87,46 @@ while cap.isOpened() and running:
         frame.flags.writeable = False
         results = face_mesh.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         frame.flags.writeable = True
-
+            
         # Send facial landmark data only when detected
         if results.multi_face_landmarks:
             landmarks = results.multi_face_landmarks[0]
 
+            # Get reference points for normalization
+            nose_tip = landmarks.landmark[4]
+            left_eye = landmarks.landmark[263]
+            right_eye = landmarks.landmark[33]
+
+            # Calculate reference distance (distance between eyes)
+            eye_distance = ((left_eye.x - right_eye.x) ** 2 +
+                            (left_eye.y - right_eye.y) ** 2 +
+                            (left_eye.z - right_eye.z) ** 2) ** 0.5
+
+            # Prevent division by zero
+            if eye_distance < 0.001:
+                eye_distance = 0.001
+
+            # Create normalized data, using "#" to show which is actually used xd
             processed_data = {
-                "X": round(landmarks.landmark[4].x, 3),
-                "Y": round(landmarks.landmark[4].y, 3),
-                "Z": round(landmarks.landmark[4].z, 3),
-                "Roll": round(landmarks.landmark[33].y - landmarks.landmark[263].y, 3),
-                "LeftEyebrowHeight": round(landmarks.landmark[296].y, 3),
-                "RightEyebrowHeight": round(landmarks.landmark[105].y, 3),
-                "MouthHeight": round(landmarks.landmark[17].y - landmarks.landmark[0].y, 3),
-                "MouthWidth": round(abs(landmarks.landmark[61].x - landmarks.landmark[291].x), 3)
+                "rEyeCornerY": round(landmarks.landmark[33].y / eye_distance, 3), #
+                "lEyeCornerY": round(landmarks.landmark[263].y / eye_distance, 3), #
+                "rEyeCornerZ": round(landmarks.landmark[33].z / eye_distance, 3), #
+                "lEyeCornerZ": round(landmarks.landmark[263].z / eye_distance, 3), #
+                "lEyebrowY": round(landmarks.landmark[296].y / eye_distance, 3), #
+                "lEyesocketY": round(landmarks.landmark[450].y / eye_distance, 3), #
+                "rEyebrowY": round(landmarks.landmark[66].y / eye_distance, 3), #
+                "rEyesocketY": round(landmarks.landmark[230].y / eye_distance, 3), #
+                "MouthBotY": round(landmarks.landmark[17].y / eye_distance, 3), #
+                "MouthTopY": round(landmarks.landmark[0].y / eye_distance, 3), #
+                "MouthRX": round(landmarks.landmark[61].x / eye_distance, 3), #
+                "MouthLX": round(landmarks.landmark[291].x / eye_distance, 3), #
+                "rEarZ": round(landmarks.landmark[93].z / eye_distance, 3), #
+                "lEarZ": round(landmarks.landmark[323].z / eye_distance, 3), #
+                "ForeheadZ": round(landmarks.landmark[10].z / eye_distance, 3), #
+                "ChinZ": round(landmarks.landmark[152].z / eye_distance, 3) #
             }
 
-            # Put data in queue for network thread (non-blocking)
+            # Put data in queue for network thread 
             try:
                 package = json.dumps(processed_data)
                 data_queue.put_nowait(package)
@@ -120,7 +139,6 @@ while cap.isOpened() and running:
             if _:
                 try:
                     data_queue.put_nowait(img_encoded.tobytes())
-                    print(f"Queued image: {len(img_encoded.tobytes())} bytes")
                 except Exception as e:
                     print(f"Failed to queue image: {e}")
 
