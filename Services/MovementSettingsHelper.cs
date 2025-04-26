@@ -15,7 +15,8 @@ public static class MovementSettingsHelper
                 Coordinate = "Roll",
                 Direction = "Negative",
                 Enabled = true,
-                Continuous = true
+                Continuous = true,
+                MouseActionType = MovementManagerService.MouseAction.None
             },
             ["HeadTiltRight"] = new MovementManagerService.MovementSetting {
                 Key = "E", 
@@ -24,7 +25,8 @@ public static class MovementSettingsHelper
                 Coordinate = "Roll",
                 Direction = "Positive",
                 Enabled = true,
-                Continuous = true
+                Continuous = true,
+                MouseActionType = MovementManagerService.MouseAction.None
             },
             ["MouthOpen"] = new MovementManagerService.MovementSetting {
                 Key = "Space", 
@@ -33,7 +35,8 @@ public static class MovementSettingsHelper
                 Coordinate = "MouthHeight",
                 Direction = "Positive",
                 Enabled = true,
-                Continuous = false
+                Continuous = false,
+                MouseActionType = MovementManagerService.MouseAction.None
             },
             ["MouthWide"] = new MovementManagerService.MovementSetting {
                 Key = "Enter", 
@@ -42,7 +45,8 @@ public static class MovementSettingsHelper
                 Coordinate = "MouthWidth",
                 Direction = "Positive",
                 Enabled = true,
-                Continuous = false
+                Continuous = false,
+                MouseActionType = MovementManagerService.MouseAction.None
             },
             ["HeadLeft"] = new MovementManagerService.MovementSetting {
                 Key = "Left", 
@@ -51,7 +55,8 @@ public static class MovementSettingsHelper
                 Coordinate = "HeadRotation",
                 Direction = "Negative",
                 Enabled = true,
-                Continuous = true
+                Continuous = true,
+                MouseActionType = MovementManagerService.MouseAction.None
             },
             ["HeadRight"] = new MovementManagerService.MovementSetting {
                 Key = "Right", 
@@ -60,7 +65,8 @@ public static class MovementSettingsHelper
                 Coordinate = "HeadRotation",
                 Direction = "Positive",
                 Enabled = true,
-                Continuous = true
+                Continuous = true,
+                MouseActionType = MovementManagerService.MouseAction.None
             }
        };
    }

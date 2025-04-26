@@ -38,9 +38,18 @@ public class MovementManagerService
         public string Direction { get; set; }
         public bool Enabled { get; set; }
         public bool Continuous { get; set; }
+        public MouseAction MouseActionType { get; set; } = MouseAction.None;
 
     }
-
+    public enum MouseAction
+    {
+        None,
+        MoveX,
+        MoveY,
+        LeftClick,
+        RightClick,
+        Scroll
+    }
     public MovementManagerService(InputService inputService, OutputViewModel outputViewModel, SettingsManager settingsManager)
     {
         _inputService = inputService;
@@ -144,14 +153,44 @@ public class MovementManagerService
             if (shouldTrigger)
             {
                 // For continuous movements, trigger constantly while active
-                if (setting.Continuous)
+                if (setting is { Continuous: true, MouseActionType: MouseAction.None })
                 {
                     SimulateKeyPress(setting.Key, movementName);
                 }
                 // For non-continuous movements, only trigger on state change
-                else if (!_movementStates.ContainsKey(movementName) || !_movementStates[movementName])
+                else if ((!_movementStates.ContainsKey(movementName) || !_movementStates[movementName]) 
+                         && setting.MouseActionType == MouseAction.None)
                 {
                     SimulateKeyPress(setting.Key, movementName);
+                }
+                else if (setting.MouseActionType != MouseAction.None)
+                {
+                    switch (setting.MouseActionType)
+                    {
+                        case MouseAction.MoveX:
+                            _inputService.MoveMouseRelative((int)(adjustedValue * setting.Sensitivity), 0);
+                            break;
+                        case MouseAction.MoveY:
+                            _inputService.MoveMouseRelative(0, (int)(adjustedValue * setting.Sensitivity));
+                            break;
+                        case MouseAction.LeftClick:
+                            if (!_movementStates.ContainsKey(movementName) || !_movementStates[movementName])
+                            {
+                                _inputService.MouseDown(false); // false = left button
+                                _outputViewModel?.Log($"Mouse left button down | Movement: {movementName}");
+                            }
+                            break;
+                        case MouseAction.RightClick:
+                            if (!_movementStates.ContainsKey(movementName) || !_movementStates[movementName])
+                            {
+                                _inputService.MouseDown(true); // true = right button
+                                _outputViewModel?.Log($"Mouse right button down | Movement: {movementName}");
+                            }
+                            break;
+                        case MouseAction.Scroll:
+                            _inputService.ScrollMouse((int)(adjustedValue * setting.Sensitivity));
+                            break;
+                    }
                 }
 
                 _movementStates[movementName] = true;

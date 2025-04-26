@@ -29,7 +29,7 @@
                                 MinWidth="280" MaxWidth="400">
                             <StackPanel>
                                 <TextBlock Text="{Binding MovementName}" FontWeight="Bold" Margin="0,0,0,5"/>
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,5">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,5">
                                     <TextBlock Text="Key:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBox Text="{Binding Key}" Grid.Row="0" Grid.Column="1" Margin="0,2"/>
 
@@ -62,6 +62,13 @@
                                                  Grid.Column="3"
                                                  Margin="0,2"/>
                                     </Grid>
+                                    <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,5,0,0">
+                                        <TextBlock Text="Mouse Action Type" Margin="0,0,0,5"/>
+                                        <ComboBox ItemsSource="{Binding $parent[UserControl].DataContext.AvailableMouseActions}"
+                                                  SelectedItem="{Binding MouseActionType, Mode=TwoWay, FallbackValue=None}"
+                                                  HorizontalAlignment="Stretch"
+                                                  Margin="0,2"/>
+                                    </StackPanel>
                                 </Grid>
                             </StackPanel>
                         </Border>

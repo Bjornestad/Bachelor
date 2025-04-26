@@ -15,7 +15,7 @@ namespace Bachelor.ViewModels
     {
         private readonly SettingsModel _settingsModel;
         private ObservableCollection<MovementSettingViewModel> _movementSettings;
-
+        public IEnumerable<MovementManagerService.MouseAction> AvailableMouseActions { get; } = Enum.GetValues<MovementManagerService.MouseAction>();
         public ObservableCollection<MovementSettingViewModel> MovementSettings => _movementSettings;
 
         public ReactiveCommand<Unit, Unit> ResetToDefaultsCommand { get; }
@@ -137,7 +137,18 @@ namespace Bachelor.ViewModels
                 }
             }
         }
-        
+        public MovementManagerService.MouseAction MouseActionType
+        {
+            get => _setting.MouseActionType;
+            set
+            {
+                if (_setting.MouseActionType != value)
+                {
+                    _parent.SaveSettingProperty(_movementName, nameof(MouseActionType), value);
+                    OnPropertyChanged();
+                }
+            }
+        }
         public MovementSettingViewModel(string movementName, MovementManagerService.MovementSetting setting, KeybindViewModel parent)
         {
             _movementName = movementName;
