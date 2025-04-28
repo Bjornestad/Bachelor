@@ -149,6 +149,19 @@ namespace Bachelor.ViewModels
                 }
             }
         }
+
+        public string InstructionImage
+        {
+            get => _setting.InstructionImage;
+            set
+            {
+                if (_setting.InstructionImage != value)
+                {
+                    _setting.InstructionImage = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
         
         public string DisplayName => _setting.DisplayName;
         

@@ -18,7 +18,8 @@ public static class DefaultMovementSettingsHelper
                 Enabled = true,
                 Continuous = true,
                 MouseActionType = "None",
-                DisplayName = "Tilt Head Left"
+                DisplayName = "Tilt Head Left",
+                InstructionImage = "avares://Bachelor/Assets/Pictures/HeadTiltLeft.png"
             },
             ["HeadTiltRight"] = new()
             {
@@ -30,7 +31,8 @@ public static class DefaultMovementSettingsHelper
                 Enabled = true,
                 Continuous = true,
                 MouseActionType = "None",
-                DisplayName = "Tilt Head Right"
+                DisplayName = "Tilt Head Right",
+                InstructionImage = "avares://Bachelor/Assets/Pictures/HeadTiltLeft.png"
             },
             ["MouthOpen"] = new()
             {
@@ -42,7 +44,8 @@ public static class DefaultMovementSettingsHelper
                 Enabled = true,
                 Continuous = false,
                 MouseActionType = "None",
-                DisplayName = "Open Mouth"
+                DisplayName = "Open Mouth",
+                InstructionImage = "avares://Bachelor/Assets/Pictures/HeadTiltLeft.png"
             },
             ["MouthWide"] = new()
             {
@@ -54,7 +57,8 @@ public static class DefaultMovementSettingsHelper
                 Enabled = true,
                 Continuous = false,
                 MouseActionType = "None",
-                DisplayName = "Open Mouth Wide"
+                DisplayName = "Open Mouth Wide",
+                InstructionImage = "avares://Bachelor/Assets/Pictures/HeadTiltLeft.png"
             },
             ["HeadLeft"] = new()
             {
@@ -66,7 +70,8 @@ public static class DefaultMovementSettingsHelper
                 Enabled = true,
                 Continuous = true,
                 MouseActionType = "None",
-                DisplayName = "Turn Head Left"
+                DisplayName = "Turn Head Left",
+                InstructionImage = "avares://Bachelor/Assets/Pictures/HeadTiltLeft.png"
             },
             ["HeadRight"] = new()
             {
@@ -78,7 +83,8 @@ public static class DefaultMovementSettingsHelper
                 Enabled = true,
                 Continuous = true,
                 MouseActionType = "None",
-                DisplayName = "Turn Head Right"
+                DisplayName = "Turn Head Right",
+                InstructionImage = "avares://Bachelor/Assets/Pictures/HeadTiltLeft.png"
             }
        };
    }

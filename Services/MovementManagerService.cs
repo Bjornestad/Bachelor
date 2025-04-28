@@ -38,6 +38,8 @@ public class MovementManagerService
         public bool Continuous { get; set; }
         public string MouseActionType { get; set; }
         public string DisplayName { get; set; }
+        public string InstructionImage { get; set; }
+
 
     }
     
@@ -68,7 +70,7 @@ public class MovementManagerService
         //To see if settings load correctly
         foreach (var entry in _settings)
         {
-            Console.WriteLine($"Loaded setting: {entry.Key}, coordinate={entry.Value.Coordinate}, enabled={entry.Value.Enabled}, sens={entry.Value.Sensitivity}, threshold={entry.Value.Threshold}, mouse={entry.Value.MouseActionType}");
+            Console.WriteLine($"Loaded setting: {entry.Key}, coordinate={entry.Value.Coordinate}, enabled={entry.Value.Enabled}, sens={entry.Value.Sensitivity}, threshold={entry.Value.Threshold}, mouse={entry.Value.MouseActionType}, picture={entry.Value.InstructionImage}");
         }
     }
     
