@@ -37,6 +37,7 @@ public class MovementManagerService
         public bool Enabled { get; set; }
         public bool Continuous { get; set; }
         public string MouseActionType { get; set; }
+        public string DisplayName { get; set; }
 
     }
     

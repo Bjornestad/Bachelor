@@ -150,6 +150,8 @@ namespace Bachelor.ViewModels
             }
         }
         
+        public string DisplayName => _setting.DisplayName;
+        
         public MovementSettingViewModel(string movementName, MovementManagerService.MovementSetting setting, KeybindViewModel parent)
         {
             _movementName = movementName;

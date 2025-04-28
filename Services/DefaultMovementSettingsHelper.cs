@@ -16,7 +16,8 @@ public static class DefaultMovementSettingsHelper
                 Direction = "Negative",
                 Enabled = true,
                 Continuous = true,
-                MouseActionType = "None"
+                MouseActionType = "None",
+                DisplayName = "Tilt Head Left"
             },
             ["HeadTiltRight"] = new MovementManagerService.MovementSetting {
                 Key = "E", 
@@ -26,7 +27,8 @@ public static class DefaultMovementSettingsHelper
                 Direction = "Positive",
                 Enabled = true,
                 Continuous = true,
-                MouseActionType = "None"
+                MouseActionType = "None",
+                DisplayName = "Tilt Head Right"
             },
             ["MouthOpen"] = new MovementManagerService.MovementSetting {
                 Key = "Space", 
@@ -36,7 +38,8 @@ public static class DefaultMovementSettingsHelper
                 Direction = "Positive",
                 Enabled = true,
                 Continuous = false,
-                MouseActionType = "None"
+                MouseActionType = "None",
+                DisplayName = "Open Mouth"
             },
             ["MouthWide"] = new MovementManagerService.MovementSetting {
                 Key = "Enter", 
@@ -46,7 +49,8 @@ public static class DefaultMovementSettingsHelper
                 Direction = "Positive",
                 Enabled = true,
                 Continuous = false,
-                MouseActionType = "None"
+                MouseActionType = "None",
+                DisplayName = "Open Mouth Wide"
             },
             ["HeadLeft"] = new MovementManagerService.MovementSetting {
                 Key = "Left", 
@@ -56,7 +60,8 @@ public static class DefaultMovementSettingsHelper
                 Direction = "Negative",
                 Enabled = true,
                 Continuous = true,
-                MouseActionType = "None"
+                MouseActionType = "None",
+                DisplayName = "Turn Head Left"
             },
             ["HeadRight"] = new MovementManagerService.MovementSetting {
                 Key = "Right", 
@@ -66,7 +71,8 @@ public static class DefaultMovementSettingsHelper
                 Direction = "Positive",
                 Enabled = true,
                 Continuous = true,
-                MouseActionType = "None"
+                MouseActionType = "None",
+                DisplayName = "Turn Head Right"
             }
        };
    }

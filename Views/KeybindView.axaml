@@ -28,7 +28,7 @@
                         <Border BorderBrush="#ff8961cc" BorderThickness="1" Margin="5" Padding="10" CornerRadius="1" 
                                 MinWidth="280" MaxWidth="400">
                             <StackPanel>
-                                <TextBlock Text="{Binding MovementName}" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Margin="0,0,0,5"/>
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,5">
                                     <TextBlock Text="Key:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBox Text="{Binding Key}" Grid.Row="0" Grid.Column="1" Margin="0,2"/>
