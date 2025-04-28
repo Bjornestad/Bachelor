@@ -64,8 +64,8 @@
                                     </Grid>
                                     <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,5,0,0">
                                         <TextBlock Text="Mouse Action Type" Margin="0,0,0,5"/>
-                                        <ComboBox ItemsSource="{Binding $parent[UserControl].DataContext.AvailableMouseActions}"
-                                                  SelectedItem="{Binding MouseActionType, Mode=TwoWay, FallbackValue=None}"
+                                        <ComboBox ItemsSource="{Binding AvailableMouseActionTypes}"
+                                                  SelectedItem="{Binding SelectedMouseActionType, Mode=TwoWay, FallbackValue=None}"
                                                   HorizontalAlignment="Stretch"
                                                   Margin="0,2"/>
                                     </StackPanel>

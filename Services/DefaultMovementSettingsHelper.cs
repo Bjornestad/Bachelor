@@ -2,7 +2,7 @@
 
 namespace Bachelor.Services;
 
-public static class MovementSettingsHelper
+public static class DefaultMovementSettingsHelper
 {
    public static Dictionary<string, MovementManagerService.MovementSetting> CreateDefaultSettings()
    {
@@ -16,7 +16,7 @@ public static class MovementSettingsHelper
                 Direction = "Negative",
                 Enabled = true,
                 Continuous = true,
-                MouseActionType = MovementManagerService.MouseAction.None
+                MouseActionType = "None"
             },
             ["HeadTiltRight"] = new MovementManagerService.MovementSetting {
                 Key = "E", 
@@ -26,7 +26,7 @@ public static class MovementSettingsHelper
                 Direction = "Positive",
                 Enabled = true,
                 Continuous = true,
-                MouseActionType = MovementManagerService.MouseAction.None
+                MouseActionType = "None"
             },
             ["MouthOpen"] = new MovementManagerService.MovementSetting {
                 Key = "Space", 
@@ -36,7 +36,7 @@ public static class MovementSettingsHelper
                 Direction = "Positive",
                 Enabled = true,
                 Continuous = false,
-                MouseActionType = MovementManagerService.MouseAction.None
+                MouseActionType = "None"
             },
             ["MouthWide"] = new MovementManagerService.MovementSetting {
                 Key = "Enter", 
@@ -46,7 +46,7 @@ public static class MovementSettingsHelper
                 Direction = "Positive",
                 Enabled = true,
                 Continuous = false,
-                MouseActionType = MovementManagerService.MouseAction.None
+                MouseActionType = "None"
             },
             ["HeadLeft"] = new MovementManagerService.MovementSetting {
                 Key = "Left", 
@@ -56,7 +56,7 @@ public static class MovementSettingsHelper
                 Direction = "Negative",
                 Enabled = true,
                 Continuous = true,
-                MouseActionType = MovementManagerService.MouseAction.None
+                MouseActionType = "None"
             },
             ["HeadRight"] = new MovementManagerService.MovementSetting {
                 Key = "Right", 
@@ -66,7 +66,7 @@ public static class MovementSettingsHelper
                 Direction = "Positive",
                 Enabled = true,
                 Continuous = true,
-                MouseActionType = MovementManagerService.MouseAction.None
+                MouseActionType = "None"
             }
        };
    }

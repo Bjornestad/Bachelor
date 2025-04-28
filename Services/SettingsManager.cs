@@ -104,7 +104,7 @@ namespace Bachelor.Services
                     string json = File.ReadAllText(_settingsFilePath);
                     _settings = JsonSerializer.Deserialize<Dictionary<string, MovementManagerService.MovementSetting>>(json);
             
-                    var defaultSettings = MovementSettingsHelper.CreateDefaultSettings();
+                    var defaultSettings = DefaultMovementSettingsHelper.CreateDefaultSettings();
                     bool hasNewSettings = false;
             
                     foreach (var defaultSetting in defaultSettings)
@@ -125,14 +125,14 @@ namespace Bachelor.Services
                 else
                 {
                     // Create default settings if file doesn't exist
-                    _settings = MovementSettingsHelper.CreateDefaultSettings();
+                    _settings = DefaultMovementSettingsHelper.CreateDefaultSettings();
                     SaveSettings();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading settings: {ex.Message}");
-                _settings = MovementSettingsHelper.CreateDefaultSettings();
+                _settings = DefaultMovementSettingsHelper.CreateDefaultSettings();
             }
         }
 
@@ -151,7 +151,7 @@ namespace Bachelor.Services
 
         public void ResetToDefaults()
         {
-            _settings = MovementSettingsHelper.CreateDefaultSettings();
+            _settings = DefaultMovementSettingsHelper.CreateDefaultSettings();
             SaveSettings();
         }
     }
