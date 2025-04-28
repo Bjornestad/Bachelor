@@ -8,7 +8,8 @@ public static class DefaultMovementSettingsHelper
    {
        return new Dictionary<string, MovementManagerService.MovementSetting>
        {
-            ["HeadTiltLeft"] = new MovementManagerService.MovementSetting {
+            ["HeadTiltLeft"] = new()
+            {
                 Key = "Q", 
                 Threshold = 10, 
                 Sensitivity = 0.5,
@@ -19,7 +20,8 @@ public static class DefaultMovementSettingsHelper
                 MouseActionType = "None",
                 DisplayName = "Tilt Head Left"
             },
-            ["HeadTiltRight"] = new MovementManagerService.MovementSetting {
+            ["HeadTiltRight"] = new()
+            {
                 Key = "E", 
                 Threshold = 10, 
                 Sensitivity = 0.5,
@@ -30,7 +32,8 @@ public static class DefaultMovementSettingsHelper
                 MouseActionType = "None",
                 DisplayName = "Tilt Head Right"
             },
-            ["MouthOpen"] = new MovementManagerService.MovementSetting {
+            ["MouthOpen"] = new()
+            {
                 Key = "Space", 
                 Threshold = 0.1, 
                 Sensitivity = 0.5,
@@ -41,7 +44,8 @@ public static class DefaultMovementSettingsHelper
                 MouseActionType = "None",
                 DisplayName = "Open Mouth"
             },
-            ["MouthWide"] = new MovementManagerService.MovementSetting {
+            ["MouthWide"] = new()
+            {
                 Key = "Enter", 
                 Threshold = 0.3, 
                 Sensitivity = 2.0,
@@ -52,7 +56,8 @@ public static class DefaultMovementSettingsHelper
                 MouseActionType = "None",
                 DisplayName = "Open Mouth Wide"
             },
-            ["HeadLeft"] = new MovementManagerService.MovementSetting {
+            ["HeadLeft"] = new()
+            {
                 Key = "Left", 
                 Threshold = 20, 
                 Sensitivity = 1.0,
@@ -63,7 +68,8 @@ public static class DefaultMovementSettingsHelper
                 MouseActionType = "None",
                 DisplayName = "Turn Head Left"
             },
-            ["HeadRight"] = new MovementManagerService.MovementSetting {
+            ["HeadRight"] = new()
+            {
                 Key = "Right", 
                 Threshold = 20, 
                 Sensitivity = 1.0,
