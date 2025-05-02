@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Drawing;
 using Avalonia.Input;
 using Bachelor.ViewModels;
 using InputSimulatorStandard;
@@ -28,13 +29,132 @@ public class InputService
     // macOS CoreGraphics P/Invoke declarations
     [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
     private static extern IntPtr CGEventCreateKeyboardEvent(IntPtr source, ushort keyCode, bool keyDown);
-
     [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
     private static extern void CGEventPost(uint tapLocation, IntPtr eventRef);
-
     [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
     private static extern void CFRelease(IntPtr cf);
+    [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
+    private static extern IntPtr CGEventCreateScrollWheelEvent(IntPtr source, uint units, int wheelCount, int wheel1);
+    [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
+    private static extern CGPoint CGEventGetLocation(IntPtr evt);
+    [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
+    private static extern IntPtr CGEventCreateMouseEvent(IntPtr source, uint mouseType, CGPoint point, uint mouseButton);
+    
+    // macOS mouse event types
+    private const uint kCGEventMouseMoved = 5;
+    private const uint kCGEventLeftMouseDown = 1;
+    private const uint kCGEventLeftMouseUp = 2;
+    private const uint kCGEventRightMouseDown = 3;
+    private const uint kCGEventRightMouseUp = 4;
+    private const uint kCGEventScrollWheel = 22;
+    private const uint kCGMouseButtonLeft = 0;
+    private const uint kCGMouseButtonRight = 1;
+    
+    // Structure for macOS point
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CGPoint
+    {
+        public double X;
+        public double Y;
+        public CGPoint(double x, double y) { X = x; Y = y; }
+    }
+    
+    // Move mouse relative to current position
+    public void MoveMouseRelative(int deltaX, int deltaY)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            _simulator.Mouse.MoveMouseBy(deltaX, deltaY);
+        }
+        else if (OperatingSystem.IsMacOS())
+        {
+            // Get current mouse position
+            IntPtr currentEvent = CGEventCreateMouseEvent(IntPtr.Zero, kCGEventMouseMoved, 
+                new CGPoint(0, 0), 0);
+            CGPoint currentPosition = CGEventGetLocation(currentEvent);
+            CFRelease(currentEvent);
+            
+            // Create and post mouse move event
+            CGPoint newPosition = new CGPoint(currentPosition.X + deltaX, currentPosition.Y + deltaY);
+            IntPtr moveEvent = CGEventCreateMouseEvent(IntPtr.Zero, kCGEventMouseMoved, 
+                newPosition, 0);
+            CGEventPost(kCGHIDEventTap, moveEvent);
+            CFRelease(moveEvent);
+        }
+        
+        _outputViewModel?.Log($"Mouse moved: {deltaX},{deltaY}");
+    }
+    
+    // Click mouse buttons
+    public void MouseDown(bool rightButton = false)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            if (rightButton)
+                _simulator.Mouse.RightButtonDown();
+            else
+                _simulator.Mouse.LeftButtonDown();
+        }
+        else if (OperatingSystem.IsMacOS())
+        {
+            // Get current position
+            IntPtr currentEvent = CGEventCreateMouseEvent(IntPtr.Zero, kCGEventMouseMoved, 
+                new CGPoint(0, 0), 0);
+            CGPoint position = CGEventGetLocation(currentEvent);
+            CFRelease(currentEvent);
+            
+            // Create and post mouse down event
+            uint eventType = rightButton ? kCGEventRightMouseDown : kCGEventLeftMouseDown;
+            uint button = rightButton ? kCGMouseButtonRight : kCGMouseButtonLeft;
+            IntPtr clickEvent = CGEventCreateMouseEvent(IntPtr.Zero, eventType, position, button);
+            CGEventPost(kCGHIDEventTap, clickEvent);
+            CFRelease(clickEvent);
+        }
+        
+        _outputViewModel?.Log($"Mouse {(rightButton ? "right" : "left")} button down");
+    }
 
+    // Similar implementation for MouseUp method
+    public void MouseUp(bool rightButton = false)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            if (rightButton)
+                _simulator.Mouse.RightButtonUp();
+            else
+                _simulator.Mouse.LeftButtonUp();
+        }
+        else if (OperatingSystem.IsMacOS())
+        {
+            // Get current position
+            IntPtr currentEvent = CGEventCreateMouseEvent(IntPtr.Zero, kCGEventMouseMoved, 
+                new CGPoint(0, 0), 0);
+            CGPoint position = CGEventGetLocation(currentEvent);
+            CFRelease(currentEvent);
+            
+            // Create and post mouse down event
+            uint eventType = rightButton ? kCGEventRightMouseDown : kCGEventLeftMouseDown;
+            uint button = rightButton ? kCGMouseButtonRight : kCGMouseButtonLeft;
+            IntPtr clickEvent = CGEventCreateMouseEvent(IntPtr.Zero, eventType, position, button);
+            CGEventPost(kCGHIDEventTap, clickEvent);
+            CFRelease(clickEvent);
+        }
+    }
+    public void ScrollMouse(int amount)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            _simulator.Mouse.VerticalScroll(amount);
+        }
+        else if (OperatingSystem.IsMacOS())
+        {
+            IntPtr scrollEvent = CGEventCreateScrollWheelEvent(IntPtr.Zero, 0, 1, amount);
+            CGEventPost(kCGHIDEventTap, scrollEvent);
+            CFRelease(scrollEvent);
+        }
+        _outputViewModel?.Log($"Mouse scrolled: {amount}");
+    }
+    
     // Constants for CGEventPost
     private const uint kCGHIDEventTap = 0;
     public void SimulateKeyDown(string keyName, string movementName)

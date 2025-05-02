@@ -3,11 +3,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:Bachelor.ViewModels"
+             xmlns:converters="clr-namespace:Bachelor.Converters"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewModels:KeybindViewModel, IsDesignTimeCreatable=False}"
              x:DataType="viewModels:KeybindViewModel"
              x:Class="Bachelor.Views.KeybindView">
 
+    <UserControl.Resources>
+        <converters:ImagePathConverter x:Key="ImagePathConverter"/>
+    </UserControl.Resources>
+    
     <DockPanel>
         <TextBlock Text="Movement Controls" FontSize="20" FontWeight="Bold" Margin="6,0,0,10" DockPanel.Dock="Top"/>
         <Button Content="Reset to Defaults"
@@ -28,11 +33,10 @@
                         <Border BorderBrush="#ff8961cc" BorderThickness="1" Margin="5" Padding="10" CornerRadius="1" 
                                 MinWidth="280" MaxWidth="400">
                             <StackPanel>
-                                <TextBlock Text="{Binding MovementName}" FontWeight="Bold" Margin="0,0,0,5"/>
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,5">
-                                    <TextBlock Text="Key:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,5">
+                                 <TextBlock Text="Key:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBox Text="{Binding Key}" Grid.Row="0" Grid.Column="1" Margin="0,2"/>
-
                                     <TextBlock Text="Threshold:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <NumericUpDown Value="{Binding Threshold}"
                                                   Minimum="0.0"
@@ -62,7 +66,19 @@
                                                  Grid.Column="3"
                                                  Margin="0,2"/>
                                     </Grid>
+                                    <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,5,0,0">
+                                        <TextBlock Text="Mouse Action Type" Margin="0,0,0,5"/>
+                                        <ComboBox ItemsSource="{Binding AvailableMouseActionTypes}"
+                                                  SelectedItem="{Binding SelectedMouseActionType, Mode=TwoWay, FallbackValue=None}"
+                                                  HorizontalAlignment="Stretch"
+                                                  Margin="0,2"/>
+                                    </StackPanel>
                                 </Grid>
+                                <Image Source="{Binding InstructionImage, Converter={StaticResource ImagePathConverter}}"
+                                       Width="200" Height="150"
+                                       Stretch="Uniform"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
                             </StackPanel>
                         </Border>
                     </DataTemplate>

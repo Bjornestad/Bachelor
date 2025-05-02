@@ -1,10 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <AssemblyName>Bachelor</AssemblyName>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\Logos\LogoHeadPut256.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
@@ -28,6 +30,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-preview.2.25163.2" />
     <PackageReference Include="ReactiveUI" Version="20.2.45" />
     <None Include="Backend\face.py"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
+    <AvaloniaResource Include="Assets\Pictures\**"/>
   </ItemGroup>
 
   <ItemGroup>
