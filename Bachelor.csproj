@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Remove="Test\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,9 +32,26 @@
     <PackageReference Include="ReactiveUI" Version="20.2.45" />
     <None Include="Backend\face.py"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></None>
     <AvaloniaResource Include="Assets\Pictures\**"/>
+    <None Remove="Test\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Assets\Pictures\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaXaml Remove="Test\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Test\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Test\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Remove="Test\**" />
   </ItemGroup>
 </Project>
