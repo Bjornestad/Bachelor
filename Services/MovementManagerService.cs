@@ -25,7 +25,7 @@ public class MovementManagerService
     private bool _hasReportedStop = false;
     private readonly InputService _inputService;
     private readonly OutputViewModel _outputViewModel;
-    private SettingsManager _settingsManager;
+    private readonly ISettingsManager _settingsManager;
     
     public class MovementSetting
     {
@@ -58,7 +58,7 @@ public class MovementManagerService
     
     
     
-    public MovementManagerService(InputService inputService, OutputViewModel outputViewModel, SettingsManager settingsManager)
+    public MovementManagerService(InputService inputService, OutputViewModel outputViewModel, ISettingsManager settingsManager)
     {
         _inputService = inputService;
         _outputViewModel = outputViewModel;

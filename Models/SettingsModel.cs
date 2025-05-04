@@ -7,7 +7,7 @@ namespace Bachelor.Models
 {
     public class SettingsModel : INotifyPropertyChanged
     {
-        private readonly SettingsManager _settingsManager;
+        private readonly ISettingsManager _settingsManager;
         private Dictionary<string, MovementManagerService.MovementSetting> _settings;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -22,7 +22,7 @@ namespace Bachelor.Models
             }
         }
 
-        public SettingsModel(SettingsManager settingsManager)
+        public SettingsModel(ISettingsManager settingsManager)
         {
             _settingsManager = settingsManager;
             _settings = _settingsManager.GetAllSettings();

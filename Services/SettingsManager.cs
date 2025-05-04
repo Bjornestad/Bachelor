@@ -6,7 +6,7 @@ using Bachelor.Models;
 
 namespace Bachelor.Services
 {
-    public class SettingsManager
+    public class SettingsManager : ISettingsManager
     {
         private readonly string _settingsFilePath;
         private Dictionary<string, MovementManagerService.MovementSetting> _settings;
