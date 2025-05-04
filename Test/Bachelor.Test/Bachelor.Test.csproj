@@ -23,7 +23,6 @@
     <Folder Include="FuncTest\" />
     <Folder Include="IntegrationTest\" />
     <Folder Include="UnitTest\BackendTest\" />
-    <Folder Include="UnitTest\ServicesTest\" />
     <Folder Include="UnitTest\ToolsTest\" />
     <Folder Include="UnitTest\ViewModelsTest\" />
     <Folder Include="UnitTest\ViewsTest\" />
