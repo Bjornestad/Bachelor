@@ -155,16 +155,14 @@ namespace Bachelor.Test.UnitTest.ServicesTest
         [Fact]
         public void SaveSettings_WritesSettingsToFile()
         {
-            // Arrange
             var testSettingsManager = new TestableSettingsManager();
             testSettingsManager.LastSavedJson = null;
 
-            // Act
             testSettingsManager.SaveSettings();
 
-            // Assert
             Assert.NotNull(testSettingsManager.LastSavedJson);
             Assert.Contains("MouthHeight", testSettingsManager.LastSavedJson);
+            Console.Out.WriteLine("Method saved : " + testSettingsManager.LastSavedJson);
         }
 
         [Fact]

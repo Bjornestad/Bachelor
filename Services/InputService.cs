@@ -63,7 +63,7 @@ public class InputService : IInputService
     // Move mouse relative to current position
     public void MoveMouseRelative(int deltaX, int deltaY)
     {
-        if (OperatingSystem.IsWindows())
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
         {
             _simulator.Mouse.MoveMouseBy(deltaX, deltaY);
         }
@@ -89,7 +89,7 @@ public class InputService : IInputService
     // Click mouse buttons
     public void MouseDown(bool rightButton = false)
     {
-        if (OperatingSystem.IsWindows())
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
         {
             if (rightButton)
                 _simulator.Mouse.RightButtonDown();
@@ -118,7 +118,7 @@ public class InputService : IInputService
     // Similar implementation for MouseUp method
     public void MouseUp(bool rightButton = false)
     {
-        if (OperatingSystem.IsWindows())
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
         {
             if (rightButton)
                 _simulator.Mouse.RightButtonUp();
@@ -143,7 +143,7 @@ public class InputService : IInputService
     }
     public void ScrollMouse(int amount)
     {
-        if (OperatingSystem.IsWindows())
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
         {
             _simulator.Mouse.VerticalScroll(amount);
         }
@@ -168,7 +168,7 @@ public class InputService : IInputService
             {
                 Console.WriteLine($"Pressing key: {keyName} | Movement: {movementName}");
                 _outputViewModel?.Log($"Pressing key: {keyName} | Movement: {movementName}");
-                if (OperatingSystem.IsWindows())
+                if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
                 {
                     VirtualKeyCode vkCode = MapAvaloniaKeyToVirtualKey(key);
                     _simulator.Keyboard.KeyDown(vkCode);
@@ -196,7 +196,7 @@ public class InputService : IInputService
             string keyIdentifier = $"{movementName}:{keyName}";
             if (_keysCurrentlyDown.ContainsKey(keyIdentifier) && _keysCurrentlyDown[keyIdentifier])
             {
-                if (OperatingSystem.IsWindows())
+                if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
                 {
                     VirtualKeyCode vkCode = MapAvaloniaKeyToVirtualKey(key);
                     _simulator.Keyboard.KeyUp(vkCode);
@@ -300,7 +300,6 @@ public class InputService : IInputService
             return vkCode;
         }
 
-        // Try a dynamic approach for unmapped keys
         if (Enum.TryParse<VirtualKeyCode>($"VK_{key}", out var dynamicVkCode))
         {
             return dynamicVkCode;
