@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bachelor.Models;
 using Bachelor.ViewModels;
-using System.ComponentModel; 
+using System.ComponentModel;
+using Bachelor.Interfaces;
 
 namespace Bachelor.Services;
 
-public class MovementManagerService
+public class MovementManagerService : IMovementManagerService
 {
     private Dictionary<string, MovementSetting> _settings;
     private FacialTrackingData _previousData;
@@ -23,9 +24,15 @@ public class MovementManagerService
     private bool _inputActive = false;
     private readonly TimeSpan _inputTimeout = TimeSpan.FromSeconds(1.5);
     private bool _hasReportedStop = false;
-    private readonly InputService _inputService;
+    private readonly IInputService _inputService;
     private readonly OutputViewModel _outputViewModel;
     private readonly ISettingsManager _settingsManager;
+    private List<long> _processingTimes = new List<long>(100); // Store last 100 measurements
+    private long _totalProcessingTime = 0;
+    private long _minProcessingTime = long.MaxValue;
+    private long _maxProcessingTime = 0;
+    private int _processedFrameCount = 0;
+    private System.Diagnostics.Stopwatch _processingStopwatch = new System.Diagnostics.Stopwatch();
     
     public class MovementSetting
     {
@@ -58,7 +65,7 @@ public class MovementManagerService
     
     
     
-    public MovementManagerService(InputService inputService, OutputViewModel outputViewModel, ISettingsManager settingsManager)
+    public MovementManagerService(IInputService inputService, OutputViewModel outputViewModel, ISettingsManager settingsManager)
     {
         _inputService = inputService;
         _outputViewModel = outputViewModel;
@@ -82,6 +89,8 @@ public class MovementManagerService
     
     public void ProcessFacialData(FacialTrackingData data)
     {
+        
+        _processingStopwatch.Restart();
         
         _lastInputTime = DateTime.Now;
     
@@ -138,14 +147,6 @@ public class MovementManagerService
             // Apply sensitivity directly to the absolute value
             double adjustedValue = value * setting.Sensitivity;
             
-            // Debug output for head movements
-            /*
-            if (movementName.ToLower().Contains("head") || movementName.ToLower().Contains("tilt"))
-            {
-                Console.WriteLine($"{movementName}: raw={value:F3}, adjusted={adjustedValue:F3}, threshold={setting.Threshold:F3}");
-                Console.WriteLine($"  Would trigger: {(setting.Direction == "Positive" ? adjustedValue >= setting.Threshold : adjustedValue <= -setting.Threshold)}");
-            }*/
-
             // Check if movement should trigger based on threshold and direction
             bool shouldTrigger = false;
             if (setting.Direction == "Positive" && adjustedValue >= setting.Threshold)
@@ -223,6 +224,38 @@ public class MovementManagerService
 
         // Save current data for next comparison
         _previousData = data;
+        
+        _processingStopwatch.Stop();
+        long processingTime = _processingStopwatch.ElapsedMilliseconds;
+        
+        if(debug){
+        RecordProcessingTime(processingTime);
+        }
+    }
+    
+    private void RecordProcessingTime(long processingTime)
+    {
+        _totalProcessingTime += processingTime;
+        _processedFrameCount++;
+    
+        if (processingTime < _minProcessingTime)
+            _minProcessingTime = processingTime;
+    
+        if (processingTime > _maxProcessingTime)
+            _maxProcessingTime = processingTime;
+    
+        _processingTimes.Add(processingTime);
+        if (_processingTimes.Count > 100)
+            _processingTimes.RemoveAt(0);
+    
+        if (_processedFrameCount % 100 == 0 || processingTime > 50)
+        {
+            Console.WriteLine($"Processing latency: {processingTime}ms, Avg: {GetAverageLatency()}ms, Min: {_minProcessingTime}ms, Max: {_maxProcessingTime}ms");
+            if (_processedFrameCount % 500 == 0)
+            {
+                PrintLatencyStats();
+            }
+        }
     }
     
     public void CalibrateNormalization(FacialTrackingData neutralData)
@@ -305,6 +338,26 @@ public class MovementManagerService
         else
         {
             _inputService.SimulateKeyDown(keyName, movementName);
+        }
+    }
+    
+    public double GetAverageLatency()
+    {
+        if (_processedFrameCount == 0) return 0;
+        return (double)_totalProcessingTime / _processedFrameCount;
+    }
+    
+    public void PrintLatencyStats()
+    {
+        Console.WriteLine($"=== LATENCY STATS ===");
+        Console.WriteLine($"Average: {GetAverageLatency():F2}ms");
+        Console.WriteLine($"Min: {_minProcessingTime}ms");
+        Console.WriteLine($"Max: {_maxProcessingTime}ms");
+        Console.WriteLine($"Samples: {_processedFrameCount}");
+    
+        if (_processingTimes.Count > 0)
+        {
+            Console.WriteLine($"Last measurement: {_processingTimes[_processingTimes.Count - 1]}ms");
         }
     }
 }

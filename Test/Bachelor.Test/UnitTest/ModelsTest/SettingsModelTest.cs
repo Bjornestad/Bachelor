@@ -2,6 +2,7 @@
 using Bachelor.Services;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Bachelor.Interfaces;
 using Xunit;
 using Moq;
 
@@ -12,7 +13,6 @@ namespace Bachelor.Test
         [Fact]
         public void Constructor_InitializesSettings()
         {
-            // Arrange
             var mockSettings = new Dictionary<string, MovementManagerService.MovementSetting>
             {
                 { "movement1", new MovementManagerService.MovementSetting() }
@@ -21,10 +21,8 @@ namespace Bachelor.Test
             var mockSettingsManager = new Mock<ISettingsManager>();
             mockSettingsManager.Setup(m => m.GetAllSettings()).Returns(mockSettings);
             
-            // Act
             var settingsModel = new SettingsModel(mockSettingsManager.Object);
             
-            // Assert
             Assert.Same(mockSettings, settingsModel.Settings);
             mockSettingsManager.Verify(m => m.GetAllSettings(), Times.Once);
         }
@@ -32,7 +30,6 @@ namespace Bachelor.Test
         [Fact]
         public void UpdateSettingProperty_CallsManagerAndRefreshesSettings()
         {
-            // Arrange
             var initialSettings = new Dictionary<string, MovementManagerService.MovementSetting>();
             var updatedSettings = new Dictionary<string, MovementManagerService.MovementSetting>();
             
@@ -51,10 +48,8 @@ namespace Bachelor.Test
             
             var settingsModel = new SettingsModel(mockSettingsManager.Object);
             
-            // Act
             settingsModel.UpdateSettingProperty("test", "sensitivity", 0.5);
             
-            // Assert
             mockSettingsManager.Verify(m => m.UpdateSettingProperty("test", "sensitivity", 0.5), Times.Once);
             mockSettingsManager.Verify(m => m.GetAllSettings(), Times.Exactly(2));
             Assert.Same(updatedSettings, settingsModel.Settings);
@@ -63,7 +58,6 @@ namespace Bachelor.Test
         [Fact]
         public void ResetToDefaults_CallsManagerAndRefreshesSettings()
         {
-            // Arrange
             var initialSettings = new Dictionary<string, MovementManagerService.MovementSetting>();
             var defaultSettings = new Dictionary<string, MovementManagerService.MovementSetting>();
             
@@ -77,10 +71,8 @@ namespace Bachelor.Test
             
             var settingsModel = new SettingsModel(mockSettingsManager.Object);
             
-            // Act
             settingsModel.ResetToDefaults();
             
-            // Assert
             mockSettingsManager.Verify(m => m.ResetToDefaults(), Times.Once);
             Assert.Same(defaultSettings, settingsModel.Settings);
         }
@@ -88,7 +80,6 @@ namespace Bachelor.Test
         [Fact]
         public void Settings_PropertyChanged_RaisesEvent()
         {
-            // Arrange
             var mockSettingsManager = new Mock<ISettingsManager>();
             mockSettingsManager.Setup(m => m.GetAllSettings())
                 .Returns(new Dictionary<string, MovementManagerService.MovementSetting>());
@@ -103,10 +94,8 @@ namespace Bachelor.Test
                 eventArgs = args;
             };
             
-            // Act
             settingsModel.ResetToDefaults();
             
-            // Assert
             Assert.True(eventRaised);
             Assert.Equal("Settings", eventArgs.PropertyName);
         }

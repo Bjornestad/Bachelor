@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Bachelor.Services;
 
-namespace Bachelor.Services
+namespace Bachelor.Interfaces
 {
     public interface ISettingsManager
     {

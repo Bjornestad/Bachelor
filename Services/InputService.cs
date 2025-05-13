@@ -4,13 +4,14 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Drawing;
 using Avalonia.Input;
+using Bachelor.Interfaces;
 using Bachelor.ViewModels;
 using InputSimulatorStandard;
 using InputSimulatorStandard.Native;
 
 namespace Bachelor.Services;
 
-public class InputService
+public class InputService : IInputService
 {
     private static readonly InputSimulator _simulator = new InputSimulator();
     private Dictionary<string, bool> _keysCurrentlyDown = new Dictionary<string, bool>();
@@ -182,6 +183,11 @@ public class InputService
             }
         }
     }
+    
+    public bool IsKeyDown(string keyIdentifier)
+    {
+        return _keysCurrentlyDown.ContainsKey(keyIdentifier) && _keysCurrentlyDown[keyIdentifier];
+    }
 
     public void ReleaseKey(string keyName, string movementName)
     {
@@ -249,7 +255,7 @@ public class InputService
         // Special keys
         { Key.Space, 49 }, { Key.Enter, 36 }, { Key.Tab, 48 }, { Key.Escape, 53 },
     };
-    private ushort MapAvaloniaKeyToMacKeyCode(Key key)
+    public ushort MapAvaloniaKeyToMacKeyCode(Key key)
     {
         if (_macKeyCodeMap.TryGetValue(key, out ushort macKeyCode))
         {
@@ -287,7 +293,7 @@ public class InputService
         { Key.Space, VirtualKeyCode.SPACE }, { Key.Enter, VirtualKeyCode.RETURN },
         { Key.Tab, VirtualKeyCode.TAB }, { Key.Escape, VirtualKeyCode.ESCAPE }
     };
-    private VirtualKeyCode MapAvaloniaKeyToVirtualKey(Key key)
+    public VirtualKeyCode MapAvaloniaKeyToVirtualKey(Key key)
     {
         if (_virtualKeyCodeMap.TryGetValue(key, out VirtualKeyCode vkCode))
         {

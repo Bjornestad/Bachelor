@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using Bachelor.Interfaces;
 using Bachelor.Models;
 
 namespace Bachelor.Services;
@@ -14,7 +15,7 @@ namespace Bachelor.Services;
 public class MediaPipeListener
 {
     private bool debug = false;
-    private readonly MovementManagerService _movementManager;
+    private readonly IMovementManagerService _movementManager;
     private TcpListener _server;
     private bool _isRunning;
     private System.Timers.Timer _checkInputTimer;
@@ -24,7 +25,7 @@ public class MediaPipeListener
     // Event for video frame updates
     public event EventHandler<Bitmap> VideoFrameReceived;
 
-    public MediaPipeListener(MovementManagerService movementManager)
+    public MediaPipeListener(IMovementManagerService movementManager)
     {
         _movementManager = movementManager;
         

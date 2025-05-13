@@ -11,6 +11,7 @@ using Avalonia.ReactiveUI;
 using Microsoft.Extensions.DependencyInjection;
 using Bachelor.Services;
 using System;
+using Bachelor.Interfaces;
 
 namespace Bachelor;
 
@@ -32,12 +33,12 @@ public partial class App : Application
         var services = new ServiceCollection();
         
         // Register services
-        services.AddSingleton<MovementManagerService>();
+        services.AddSingleton<IMovementManagerService, MovementManagerService>();
         services.AddSingleton<MediaPipeListener>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<PythonLauncherService>();
         services.AddSingleton<OutputViewModel>();
-        services.AddSingleton<InputService>();
+        services.AddSingleton<IInputService,InputService>();
         services.AddSingleton<ISettingsManager, SettingsManager>();
         services.AddSingleton<Models.SettingsModel>();
         services.AddSingleton<KeybindViewModel>();
@@ -48,7 +49,7 @@ public partial class App : Application
 
         
         var settingsModel = Services.GetRequiredService<Models.SettingsModel>();
-        var movementManagerService = Services.GetRequiredService<MovementManagerService>();
+        var movementManagerService = Services.GetRequiredService<IMovementManagerService>();
         settingsModel.PropertyChanged += (sender, args) => {
             if (args.PropertyName == nameof(Models.SettingsModel.Settings))
             {

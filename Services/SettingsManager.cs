@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using Bachelor.Interfaces;
 using Bachelor.Models;
 
 namespace Bachelor.Services
@@ -95,7 +96,7 @@ namespace Bachelor.Services
             }
         }
 
-        public void LoadSettings()
+        public virtual void LoadSettings()
         {
             try
             {
@@ -136,7 +137,7 @@ namespace Bachelor.Services
             }
         }
 
-        public void SaveSettings()
+        public virtual void SaveSettings()
         {
             try
             {
@@ -149,7 +150,7 @@ namespace Bachelor.Services
             }
         }
 
-        public void ResetToDefaults()
+        public virtual void ResetToDefaults()
         {
             _settings = DefaultMovementSettingsHelper.CreateDefaultSettings();
             SaveSettings();

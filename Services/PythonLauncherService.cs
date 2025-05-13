@@ -8,8 +8,8 @@ namespace Bachelor.Services;
 public class PythonLauncherService
 {
     private Process? _pythonProcess;
-    
-    public void StartPythonScript()
+
+    public virtual void StartPythonScript()
     {
         string pythonPath = "python";
         if (OperatingSystem.IsMacOS())
@@ -17,8 +17,19 @@ public class PythonLauncherService
             pythonPath = "python3";
         }
         string scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backend", "face.py");
-        
-        _pythonProcess = new Process
+
+        _pythonProcess = CreateAndConfigureProcess(pythonPath, scriptPath);
+        _pythonProcess.Start();
+        _pythonProcess.BeginOutputReadLine();
+        _pythonProcess.BeginErrorReadLine();
+
+        Console.WriteLine("Python script started");
+    }
+
+    // Add this method to make the class more testable
+    protected virtual Process CreateAndConfigureProcess(string pythonPath, string scriptPath)
+    {
+        var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
@@ -31,18 +42,14 @@ public class PythonLauncherService
             },
             EnableRaisingEvents = true
         };
-        
-        _pythonProcess.OutputDataReceived += (sender, args) => Console.WriteLine($"Python: {args.Data}");
-        _pythonProcess.ErrorDataReceived += (sender, args) => Console.WriteLine($"Python Error: {args.Data}");
-        
-        _pythonProcess.Start();
-        _pythonProcess.BeginOutputReadLine();
-        _pythonProcess.BeginErrorReadLine();
-        
-        Console.WriteLine("Python script started");
+
+        process.OutputDataReceived += (sender, args) => Console.WriteLine($"Python: {args.Data}");
+        process.ErrorDataReceived += (sender, args) => Console.WriteLine($"Python Error: {args.Data}");
+
+        return process;
     }
-    
-    public void StopPythonScript()
+
+    public virtual void StopPythonScript()
     {
         if (_pythonProcess != null && !_pythonProcess.HasExited)
         {
