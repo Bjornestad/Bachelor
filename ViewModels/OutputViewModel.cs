@@ -8,10 +8,16 @@ namespace Bachelor.ViewModels;
 
 public class OutputViewModel : ViewModelBase
 {
+    private readonly IDispatcher _dispatcher;
     private string _logText = string.Empty;
     private readonly StringBuilder _logBuilder = new StringBuilder();
     private readonly ObservableCollection<string> _logEntries = new ObservableCollection<string>();
     private int _maxLogEntries = 400;
+    
+    public OutputViewModel(IDispatcher? dispatcher = null)
+    {
+        _dispatcher = dispatcher ?? Dispatcher.UIThread;
+    }
 
     public string LogText
     {
@@ -38,7 +44,7 @@ public class OutputViewModel : ViewModelBase
 
     private void AddLogEntry(string message)
     {
-        Dispatcher.UIThread.Post(() =>
+        _dispatcher.Post(() =>
         {
             string timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
             string entry = $"{message}";
@@ -68,7 +74,7 @@ public class OutputViewModel : ViewModelBase
 
     public void Clear()
     {
-        Dispatcher.UIThread.Post(() =>
+        _dispatcher.Post(() =>
         {
             _logBuilder.Clear();
             _logEntries.Clear();

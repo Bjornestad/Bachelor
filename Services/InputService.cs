@@ -158,7 +158,7 @@ public class InputService : IInputService
     
     // Constants for CGEventPost
     private const uint kCGHIDEventTap = 0;
-    public void SimulateKeyDown(string keyName, string movementName)
+    public virtual void SimulateKeyDown(string keyName, string movementName)
     {
         if (Enum.TryParse<Key>(keyName, out var key))
         {

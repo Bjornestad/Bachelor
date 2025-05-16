@@ -1,7 +1,7 @@
 ﻿#!/bin/bash
 
 echo "Running tests..."
-dotnet test ./Test/Bachelor.Test/Bachelor.Test.csproj
+dotnet test .\Test\Bachelor.Test\Bachelor.Test.csproj
 if [ $? -ne 0 ]; then
     echo "Tests failed. App will not run."
     exit 1

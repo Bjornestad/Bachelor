@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Bachelor.Services;
 using Avalonia.Input;
+using Bachelor.Tools;
 using Bachelor.ViewModels;
 using InputSimulatorStandard.Native;
 using Moq;
@@ -16,7 +17,7 @@ public class InputServiceTest
 
     public InputServiceTest()
     {
-        var mockOutputViewModel = new Mock<OutputViewModel>();
+        var mockOutputViewModel = new Mock<OutputViewModel>(new ImmediateDispatcher());
         _inputService = new InputService(mockOutputViewModel.Object);
     }
 
