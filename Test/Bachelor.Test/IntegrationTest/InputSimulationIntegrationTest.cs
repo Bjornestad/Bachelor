@@ -167,14 +167,65 @@ namespace Bachelor.Test.IntegrationTest
                 inputService.ReleaseAllKeys();
             }
         }
+        
+        [Fact]
+        public async Task CanBindDifferentKeysToMovements()
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton<ISettingsManager, SettingsManager>();
+            services.AddSingleton<SettingsModel>();
+            services.AddSingleton<OutputViewModel>();
+            services.AddSingleton<MockInputService>();
+            var serviceProvider = services.BuildServiceProvider();
+
+            var settingsModel = serviceProvider.GetRequiredService<SettingsModel>();
+            var inputService = serviceProvider.GetRequiredService<MockInputService>();
+            //Different keys from default
+            settingsModel.Settings["HeadTiltLeft"].Key = "X"; 
+            settingsModel.Settings["MouthOpen"].Key = "Y";    
+
+            var tracker = new MockTracker(inputService, settingsModel);
+
+            
+            var headTiltData = new FacialTrackingData
+            {
+                lEyeCornerY = 0.8,
+                rEyeCornerY = 0.2
+            };
+            tracker.ProcessTrackingData(headTiltData);
+
+            
+            var mouthOpenData = new FacialTrackingData
+            {
+                MouthTopY = 0.3,
+                MouthBotY = 0.7
+            };
+            tracker.ProcessTrackingData(mouthOpenData);
+
+            await Task.Delay(100);
+
+            Assert.Contains("HeadTiltLeft", inputService.PressedMovements);
+            Assert.Contains("MouthOpen", inputService.PressedMovements);
+    
+            Assert.Equal("X", inputService.GetKeyForMovement("HeadTiltLeft"));
+            Assert.Equal("Y", inputService.GetKeyForMovement("MouthOpen"));
+        }
 
         public class MockInputService : IInputService
         {
             public List<string> PressedMovements { get; } = new List<string>();
+            private Dictionary<string, string> _movementToKeyMap = new Dictionary<string, string>();
 
             public void SimulateKeyDown(string keyName, string movementName)
             {
                 PressedMovements.Add(movementName);
+                _movementToKeyMap[movementName] = keyName;
+
+            }
+            
+            public string GetKeyForMovement(string movementName)
+            {
+                return _movementToKeyMap.TryGetValue(movementName, out var key) ? key : null;
             }
 
             public void ReleaseKey(string keyName, string movementName)
