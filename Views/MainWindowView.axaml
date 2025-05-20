@@ -1,0 +1,23 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:Bachelor.Views"
+        mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="600" 
+        x:Class="Bachelor.Views.MainWindowView"
+        Title="Bachelor">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition MinWidth="300" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="280" />
+        </Grid.RowDefinitions>
+        <ContentControl Grid.Row="0" Grid.Column="0" x:Name="CameraContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <ContentControl Grid.Row="1" Grid.Column="0" x:Name="OutputContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <ContentControl Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" x:Name="KeybindContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+    </Grid>
+</Window>

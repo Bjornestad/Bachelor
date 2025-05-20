@@ -6,11 +6,18 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using Bachelor.ViewModels;
 using Bachelor.Views;
+using ReactiveUI;
+using Avalonia.ReactiveUI;
+using Microsoft.Extensions.DependencyInjection;
+using Bachelor.Services;
+using System;
 
 namespace Bachelor;
 
 public partial class App : Application
 {
+    public IServiceProvider? Services { get; private set; }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -18,15 +25,55 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        // Configure ReactiveUI
+        RxApp.MainThreadScheduler = AvaloniaScheduler.Instance;
+
+        // Set up dependency injection
+        var services = new ServiceCollection();
+        
+        // Register services
+        services.AddSingleton<MovementManagerService>();
+        services.AddSingleton<MediaPipeListener>();
+        services.AddSingleton<MainWindowViewModel>();
+        services.AddSingleton<PythonLauncherService>();
+        services.AddSingleton<OutputViewModel>();
+        services.AddSingleton<InputService>();
+        services.AddSingleton<SettingsManager>();
+        services.AddSingleton<Models.SettingsModel>();
+        services.AddSingleton<KeybindViewModel>();
+
+        
+        // Build service provider
+        Services = services.BuildServiceProvider();
+
+        
+        var settingsModel = Services.GetRequiredService<Models.SettingsModel>();
+        var movementManagerService = Services.GetRequiredService<MovementManagerService>();
+        settingsModel.PropertyChanged += (sender, args) => {
+            if (args.PropertyName == nameof(Models.SettingsModel.Settings))
+            {
+                movementManagerService.RefreshSettings();
+            }
+        };
+        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
-            // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
-            DisableAvaloniaDataAnnotationValidation();
-            desktop.MainWindow = new MainWindow
+            // Get MainWindowViewModel from DI container
+            var viewModel = Services.GetRequiredService<MainWindowViewModel>();
+            
+            desktop.MainWindow = new MainWindowView
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = viewModel,
             };
+            
+            // Start the OpenFace listener
+            var listener = Services.GetRequiredService<MediaPipeListener>();
+            listener.Start();
+            
+            // Check that this initialization is happening
+            
+            var pythonLauncher = Services.GetRequiredService<PythonLauncherService>();
+            pythonLauncher.StartPythonScript();
         }
 
         base.OnFrameworkInitializationCompleted();
