@@ -25,7 +25,6 @@ namespace Bachelor.Test.IntegrationTest
         [Fact]
         public async Task HeadTiltLeft_ShouldTriggerCorrespondingKeyPress()
         {
-            // Existing test code...
             var services = new ServiceCollection();
             services.AddSingleton<ISettingsManager, SettingsManager>();
             services.AddSingleton<SettingsModel>();
@@ -84,7 +83,6 @@ namespace Bachelor.Test.IntegrationTest
                 return;
             }
 
-            // Arrange
             var services = new ServiceCollection();
             services.AddSingleton<OutputViewModel>();
             services.AddSingleton<IInputService, TestableInputService>();
@@ -130,7 +128,6 @@ namespace Bachelor.Test.IntegrationTest
                 return;
             }
 
-            // Arrange
             var services = new ServiceCollection();
             services.AddSingleton<OutputViewModel>();
             services.AddSingleton<IInputService, TestableInputService>();
