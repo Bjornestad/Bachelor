@@ -23,10 +23,13 @@ face_mesh = mp_face_mesh.FaceMesh(
 server_address = ("127.0.0.1", 5005)
 data_queue = Queue(maxsize=2)  # Queue to pass data to network thread
 
-print("OS PLATFORM: ",sys.platform)
-if sys.platform=="darwin":
+print("OS PLATFORM: ", sys.platform)
+if sys.platform == "darwin":
     cap = cv2.VideoCapture(0)
-else:
+elif sys.platform.startswith("linux"):
+    #cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
+    cap = cv2.VideoCapture('/dev/video0', cv2.CAP_V4L2)
+else:  # Windows
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)

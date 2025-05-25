@@ -12,7 +12,7 @@ public class PythonLauncherService
     public void StartPythonScript()
     {
         string pythonPath = "python";
-        if (OperatingSystem.IsMacOS())
+        if (OperatingSystem.IsMacOS() || OperatingSystem.IsLinux())
         {
             pythonPath = "python3";
         }
