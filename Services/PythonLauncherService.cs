@@ -10,10 +10,10 @@ public class PythonLauncherService
 
     public void StartPythonScript()
     {
-        if (OperatingSystem.IsWindows())
+        string exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backend", "face.exe");
+    
+        if (OperatingSystem.IsWindows() && File.Exists(exePath))
         {
-            string exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backend", "face.exe");
-
             _pythonProcess = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -48,7 +48,7 @@ public class PythonLauncherService
                 EnableRaisingEvents = true
             };
 
-            Console.WriteLine("Starting face tracking application (Python script)");
+            Console.WriteLine($"Starting face tracking application (Python script) - {(OperatingSystem.IsWindows() ? "EXE not found" : "Non-Windows OS")}");
         }
 
         _pythonProcess.OutputDataReceived += (sender, args) => Console.WriteLine($"App: {args.Data}");
