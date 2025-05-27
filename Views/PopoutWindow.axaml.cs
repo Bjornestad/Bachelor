@@ -13,9 +13,7 @@ namespace Bachelor.Views
             Width = 640;
             Height = 480;
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
-#if DEBUG
-            this.AttachDevTools();
-#endif
+
         }
         protected override void OnOpened(EventArgs e)
         {
