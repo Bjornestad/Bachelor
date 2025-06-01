@@ -11,6 +11,7 @@ public class PythonLauncherService
     public void StartPythonScript()
     {
         string exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backend", "face.exe");
+        string macosexePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backend", "face");
     
         if (OperatingSystem.IsWindows() && File.Exists(exePath))
         {
@@ -28,6 +29,22 @@ public class PythonLauncherService
             };
 
             Console.WriteLine("Starting face tracking application (EXE)");
+        }
+        else if (OperatingSystem.IsMacOS() && File.Exists(macosexePath)) {
+            _pythonProcess = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = macosexePath,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                },
+                EnableRaisingEvents = true
+            };
+
+            Console.WriteLine("Starting face tracking application (EXE)on macOS");
         }
         else
         {
