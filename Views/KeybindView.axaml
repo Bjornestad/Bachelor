@@ -12,15 +12,15 @@
     <UserControl.Resources>
         <converters:ImagePathConverter x:Key="ImagePathConverter"/>
     </UserControl.Resources>
-    
+
     <DockPanel>
         <TextBlock Text="Movement Controls" FontSize="20" FontWeight="Bold" Margin="6,0,0,10" DockPanel.Dock="Top"/>
         <Button Content="Reset to Defaults"
                 Command="{Binding ResetToDefaultsCommand}"
                 HorizontalAlignment="Center"
-                Margin="0,10" 
+                Margin="0,10"
                 DockPanel.Dock="Bottom"/>
-        
+
         <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding MovementSettings}" x:CompileBindings="False">
                 <ItemsControl.ItemsPanel>
@@ -30,13 +30,20 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderBrush="#ff8961cc" BorderThickness="1" Margin="5" Padding="10" CornerRadius="1" 
+                        <Border BorderBrush="#ff8961cc" BorderThickness="1" Margin="5" Padding="10" CornerRadius="1"
                                 MinWidth="280" MaxWidth="400">
                             <StackPanel>
                                 <TextBlock Text="{Binding DisplayName}" FontWeight="Bold" Margin="0,0,0,5"/>
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,5">
-                                 <TextBlock Text="Key:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="0,5">
+                                    <TextBlock Text="Key:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBox Text="{Binding Key}" Grid.Row="0" Grid.Column="1" Margin="0,2"/>
+                                    <Button Grid.Row="0" Grid.Column="2" Content="?" Margin="5,0,0,0" 
+                                            Padding="5,0" FontWeight="Bold" VerticalAlignment="Center">
+                                        <ToolTip.Tip>
+                                            <TextBlock Text="The keyboard key that is activated by this movement" MaxWidth="250" TextWrapping="Wrap"/>
+                                        </ToolTip.Tip>
+                                    </Button>
+
                                     <TextBlock Text="Threshold:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <NumericUpDown Value="{Binding Threshold}"
                                                   Minimum="0.0"
@@ -45,6 +52,12 @@
                                                   Grid.Row="1"
                                                   Grid.Column="1"
                                                   Margin="0,2"/>
+                                    <Button Grid.Row="1" Grid.Column="2" Content="?" Margin="5,0,0,0" 
+                                            Padding="5,0" FontWeight="Bold" VerticalAlignment="Center">
+                                        <ToolTip.Tip>
+                                            <TextBlock Text="Minimum value required to trigger the action" MaxWidth="250" TextWrapping="Wrap"/>
+                                        </ToolTip.Tip>
+                                    </Button>
 
                                     <TextBlock Text="Sensitivity:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <NumericUpDown Value="{Binding Sensitivity}"
@@ -54,20 +67,47 @@
                                                   Grid.Row="2"
                                                   Grid.Column="1"
                                                   Margin="0,2"/>
+                                    <Button Grid.Row="2" Grid.Column="2" Content="?" Margin="5,0,0,0" 
+                                            Padding="5,0" FontWeight="Bold" VerticalAlignment="Center">
+                                        <ToolTip.Tip>
+                                            <TextBlock Text="How responsive the control is to movement (higher values = more sensitive)" MaxWidth="250" TextWrapping="Wrap"/>
+                                        </ToolTip.Tip>
+                                    </Button>
 
-                                    <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*,Auto,*">
+                                    <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" ColumnDefinitions="Auto,*,Auto,Auto,*,Auto">
                                         <TextBlock Text="Enabled:" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                         <CheckBox IsChecked="{Binding Enabled}"
                                                  Grid.Column="1"
                                                  Margin="0,2"/>
+                                        <Button Grid.Column="2" Content="?" Margin="5,0,0,0" 
+                                                Padding="5,0" FontWeight="Bold" VerticalAlignment="Center">
+                                            <ToolTip.Tip>
+                                                <TextBlock Text="Turn this control on or off" MaxWidth="250" TextWrapping="Wrap"/>
+                                            </ToolTip.Tip>
+                                        </Button>
 
-                                        <TextBlock Text="Continuous:" Grid.Column="2" VerticalAlignment="Center" Margin="10,0,10,0"/>
+                                        <TextBlock Text="Continuous:" Grid.Column="3" VerticalAlignment="Center" Margin="10,0,10,0"/>
                                         <CheckBox IsChecked="{Binding Continuous}"
-                                                 Grid.Column="3"
+                                                 Grid.Column="4"
                                                  Margin="0,2"/>
+                                        <Button Grid.Column="5" Content="?" Margin="5,0,0,0" 
+                                                Padding="5,0" FontWeight="Bold" VerticalAlignment="Center">
+                                            <ToolTip.Tip>
+                                                <TextBlock Text="When enabled, the action continues as long as the gesture is held" MaxWidth="250" TextWrapping="Wrap"/>
+                                            </ToolTip.Tip>
+                                        </Button>
                                     </Grid>
-                                    <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,5,0,0">
-                                        <TextBlock Text="Mouse Action Type" Margin="0,0,0,5"/>
+
+                                    <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,5,0,0">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <TextBlock Text="Mouse Action Type" Grid.Column="0" Margin="0,0,0,5"/>
+                                            <Button Grid.Column="2" Content="?" Margin="5,-2,0,0" 
+                                                    Padding="5,0" FontWeight="Bold" VerticalAlignment="Top">
+                                                <ToolTip.Tip>
+                                                    <TextBlock Text="The type of mouse action to perform when this movement is detected" MaxWidth="250" TextWrapping="Wrap"/>
+                                                </ToolTip.Tip>
+                                            </Button>
+                                        </Grid>
                                         <ComboBox ItemsSource="{Binding AvailableMouseActionTypes}"
                                                   SelectedItem="{Binding SelectedMouseActionType, Mode=TwoWay, FallbackValue=None}"
                                                   HorizontalAlignment="Stretch"
